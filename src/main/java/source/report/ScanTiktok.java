@@ -25,6 +25,7 @@ public class ScanTiktok extends Thread {
                 process("TT7", null,  null);
                 process("TT30", null,  null);
                 process("TT80", null,  null);
+                process("TIKTOK90", null,  null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -32,11 +33,12 @@ public class ScanTiktok extends Thread {
     }
 
     public static void scan(DateTime fromDate, DateTime toDate) {
-        process(null, fromDate,  toDate);
-        process("TT1", fromDate,  toDate);
-        process("TT7", fromDate,  toDate);
-        process("TT30", fromDate,  toDate);
-        process("TT80", fromDate,  toDate);
+//        process(null, fromDate,  toDate);
+//        process("TT1", fromDate,  toDate);
+//        process("TT7", fromDate,  toDate);
+//        process("TT30", fromDate,  toDate);
+//        process("TT80", fromDate,  toDate);
+        process("TIKTOK90", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -67,10 +69,10 @@ public class ScanTiktok extends Thread {
                 String[] listPackage;
                 // Tổng lượt đăng ký tất cả các gói
                 listPackage = new String[]{
-                        "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80",
-                        "DK TT1", "DK TT7", "DK TT30", "DK TT80",
-                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80",
-                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM"
+                        "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", "DKLAI TIKTOK90",
+                        "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90", "DK TIKTOK90",
+                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90",
+                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", "DK TIKTOK90 NOT EM",
                 };
                 int numberNewAll = countRegister(database, currentdate, listPackage, packageFilter);
 
@@ -98,6 +100,12 @@ public class ScanTiktok extends Thread {
                 };
                 int numberNewTT80 = countRegister(database, currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký mới gọi TIKTOK90
+                listPackage = new String[]{
+                        "DK TIKTOK90"
+                };
+                int numberNewTIKTOK90 = countRegister(database, currentdate, listPackage, packageFilter);
+
                 // Tổng lượt đăng ký lại gói TT1
                 listPackage = new String[]{
                         "DKLAI TT1"
@@ -122,48 +130,58 @@ public class ScanTiktok extends Thread {
                 };
                 int numberAgainTT80 = countRegister(database, currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký lại gói TIKTOK90
+                listPackage = new String[]{
+                        "DKLAI TIKTOK90"
+                };
+                int numberAgainTIKTOK90 = countRegister(database, currentdate, listPackage, packageFilter);
+
                 // Tổng đăng ký miễn phí
                 listPackage = new String[]{
-                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80",
+                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90"
                 };
                 int numberNewFree = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng đăng ký miễn phí
                 listPackage = new String[]{
-                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM"
+                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", "DK TIKTOK90 NOT EM"
                 };
                 int numberNewFail = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng gia hạn
                 listPackage = new String[]{
-                        "GH TT1", "GH TT7", "GH TT30", "GH TT80"
+                        "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90",
+                        "GHMK TIKTOK90",
+                        "GHCD TIKTOK90"
                 };
                 int numberMore = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy
                 listPackage = new String[]{
-                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80",
-                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80"
+                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90",
+                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90",
                 };
                 int numberCancel = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do người dùng hủy
                 listPackage = new String[]{
-                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80"
+                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90"
                 };
                 int numberCancelUser = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do hệ thống hủy
                 listPackage = new String[]{
-                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80",
+                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90",
                 };
                 int numberCancelSystem = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb phát sinh cước
                 listPackage = new String[]{
-                        "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80",
-                        "DK TT1", "DK TT7", "DK TT30", "DK TT80",
-                        "GH TT1", "GH TT7", "GH TT30", "GH TT80"
+                        "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", "DKLAI TIKTOK90",
+                        "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
+                        "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90",
+                        "GHMK TIKTOK90",
+                        "GHCD TIKTOK90"
                 };
                 int numberPSC = countRegister(database, currentdate, listPackage, packageFilter);
 
@@ -203,10 +221,12 @@ public class ScanTiktok extends Thread {
                 insertData.put("registerNewSuccessTT7", numberNewTT7);
                 insertData.put("registerNewSuccessTT30", numberNewTT30);
                 insertData.put("registerNewSuccessTT80", numberNewTT80);
+                insertData.put("registerNewSuccessTIKTOK90", numberNewTIKTOK90);
                 insertData.put("registerNewAgainTT1", numberAgainTT1);
                 insertData.put("registerNewAgainTT7", numberAgainTT7);
                 insertData.put("registerNewAgainTT30", numberAgainTT30);
                 insertData.put("registerNewAgainTT80", numberAgainTT80);
+                insertData.put("registerNewAgainTIKTOK90", numberAgainTIKTOK90);
                 insertData.put("registerNewFree", numberNewFree);
                 insertData.put("registerNewFalse", numberNewFail);
                 insertData.put("registerMore", numberMore);
@@ -265,9 +285,11 @@ public class ScanTiktok extends Thread {
         try {
             MongoCollection<Document> collection = database.getCollection("register");
             String[] listPackage = new String[]{
-                    "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80",
-                    "DK TT1", "DK TT7", "DK TT30", "DK TT80",
-                    "GH TT1", "GH TT7", "GH TT30", "GH TT80"
+                    "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", "DKLAI TIKTOK90",
+                    "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
+                    "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90",
+                    "GHMK TIKTOK90",
+                    "GHCD TIKTOK90"
             };
             BasicDBObject match = null;
             if (packageFilter == null) {
@@ -317,8 +339,8 @@ public class ScanTiktok extends Thread {
         try {
             MongoCollection<Document> collection = database.getCollection("register");
             String[] listPackage = new String[]{
-                    "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80",
-                    "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80"
+                    "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90",
+                    "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90",
             };
             BasicDBObject searchQuery = new BasicDBObject();
             searchQuery.put("commandCode",
@@ -348,8 +370,8 @@ public class ScanTiktok extends Thread {
             // Lấy danh sách số đã đăng ký
             MongoCollection<Document> collectionCancel = database.getCollection("register");
             String[] listPackage = new String[]{
-                    "DK TT1", "DK TT7", "DK TT30", "DK TT80",
-                    "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80"
+                    "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
+                    "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90"
             };
             BasicDBObject match = null;
             if (packageFilter == null) {
@@ -419,8 +441,8 @@ public class ScanTiktok extends Thread {
             // Lấy danh sách số đã đăng ký
             MongoCollection<Document> collectionCancel = database.getCollection("vas_cancel_service");
             String[] listPackage = new String[]{
-                    "DK TT1", "DK TT7", "DK TT30", "DK TT80",
-                    "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80"
+                    "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
+                    "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90"
             };
             BasicDBObject match = null;
             if (packageFilter == null) {
