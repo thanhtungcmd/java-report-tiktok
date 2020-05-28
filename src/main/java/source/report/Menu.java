@@ -16,10 +16,10 @@ public class Menu extends Thread {
         try {
             ConnectDb.loadProperties();
             // Scan Sportify
-            Scan scan = new Scan();
-            scan.start();
+            ScanSpotify scanSportify = new ScanSpotify();
+            scanSportify.start();
             // Scan Tiktok
-            ScanTiktok scanTiktok = new ScanTiktok();
+            ScanTiktokNew scanTiktok = new ScanTiktokNew();
             scanTiktok.start();
             // Scan Htv
             ScanHtv scanHtv = new ScanHtv();
@@ -93,10 +93,10 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
                 DateTime fromDate = toDate.minusDays(scan);
 
-                Scan.scan(fromDate, toDate);
+                ScanSpotify.scan(fromDate, toDate);
             } catch (Exception ignored) {}
         } else if (option != null && option.length() == 10) {
             try {
@@ -106,7 +106,7 @@ public class Menu extends Thread {
                 int day = Integer.parseInt(split[2]);
                 DateTime fromDate = new DateTime(year, month, day, 00, 00);
                 DateTime toDate = fromDate;
-                Scan.scan(fromDate, toDate);
+                ScanSpotify.scan(fromDate, toDate);
             } catch (Exception ignore) {}
         } else if (option != null && "Q".equals(option.toUpperCase()) ) {
             exitMenu();
@@ -134,10 +134,10 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
                 DateTime fromDate = toDate.minusDays(scan);
 
-                ScanTiktok.scan(fromDate, toDate);
+                ScanTiktokNew.scan(fromDate, toDate);
             } catch (Exception ignored) {}
         } else if (option != null && option.length() == 10) {
             try {
@@ -145,9 +145,9 @@ public class Menu extends Thread {
                 int year = Integer.parseInt(split[0]);
                 int month = Integer.parseInt(split[1]);
                 int day = Integer.parseInt(split[2]);
-                DateTime fromDate = new DateTime(year, month, day, 00, 00);
+                DateTime fromDate = new DateTime(year, month, day, 0, 0);
                 DateTime toDate = fromDate;
-                ScanTiktok.scan(fromDate, toDate);
+                ScanTiktokNew.scan(fromDate, toDate);
             } catch (Exception ignore) {}
         } else if (option != null && "Q".equals(option.toUpperCase()) ) {
             exitMenu();
@@ -175,7 +175,7 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
                 DateTime fromDate = toDate.minusDays(scan);
 
                 ScanHtv.scan(fromDate, toDate);
@@ -216,7 +216,7 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
                 DateTime fromDate = toDate.minusDays(scan);
 
                 ScanThvl.scan(fromDate, toDate);

@@ -13,19 +13,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class ScanTiktok extends Thread {
+public class ScanTiktokOld extends Thread {
 
     @Override
     public void run() {
         while (Menu.isRunning) {
             try {
                 sleepTime();
-                process(null, null,  null);
-                process("TT1", null,  null);
-                process("TT7", null,  null);
-                process("TT30", null,  null);
-                process("TT80", null,  null);
-                process("TIKTOK90", null,  null);
+//                process(null, null,  null);
+//                process("TT1", null,  null);
+//                process("TT7", null,  null);
+//                process("TT30", null,  null);
+//                process("TT80", null,  null);
+//                process("TIKTOK90", null,  null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -38,7 +38,7 @@ public class ScanTiktok extends Thread {
 //        process("TT7", fromDate,  toDate);
 //        process("TT30", fromDate,  toDate);
 //        process("TT80", fromDate,  toDate);
-        process("TIKTOK90", fromDate,  toDate);
+//        process("TIKTOK90", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -58,7 +58,7 @@ public class ScanTiktok extends Thread {
         try {
             conn = ConnectDb.createConnection();
             MongoDatabase database = conn.getDatabase(ConnectDb.MONGO_DATABASE);
-            toDate = (toDate == null) ? new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay() : toDate;
+            toDate = (toDate == null) ? new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay() : toDate;
             fromDate = (fromDate == null) ? toDate.minusDays(2) : fromDate;
 
             for(DateTime currentdate = toDate;
