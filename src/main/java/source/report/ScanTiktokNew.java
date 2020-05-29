@@ -58,15 +58,15 @@ public class ScanTiktokNew extends Thread {
     public static void process(String packageFilter, DateTime fromDate, DateTime toDate) {
         MongoClient conn = null;
         try {
-            DateTime dateApply = new DateTime(2020, 5, 27, 0, 0);
-            if (fromDate.getMillis() < dateApply.getMillis()) {
-                return;
-            }
-
             conn = ConnectDb.createConnection();
             MongoDatabase database = conn.getDatabase(ConnectDb.MONGO_DATABASE);
             toDate = (toDate == null) ? new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay() : toDate;
             fromDate = (fromDate == null) ? toDate.minusDays(2) : fromDate;
+
+            DateTime dateApply = new DateTime(2020, 5, 27, 0, 0);
+            if (fromDate.getMillis() < dateApply.getMillis()) {
+                return;
+            }
 
             for(DateTime currentdate = toDate;
                 currentdate.isAfter(fromDate) || currentdate.isEqual(fromDate);
