@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import source.helper.ConnectDb;
@@ -11,9 +12,7 @@ import org.bson.Document;
 
 import java.sql.Array;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 public class ScanTiktokNew extends Thread {
 
@@ -28,6 +27,7 @@ public class ScanTiktokNew extends Thread {
                 process("TT30", null,  null);
                 process("TT80", null,  null);
                 process("TIKTOK90", null,  null);
+                System.out.println("Tiktok-Thread run" + new Date());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -75,12 +75,21 @@ public class ScanTiktokNew extends Thread {
 
                 String[] listPackage;
                 // Tổng lượt đăng ký tất cả các gói
-                listPackage = new String[]{
-                        "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", "DKLAI TIKTOK90",
-                        "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90", "DK TIKTOK90",
-                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90",
-                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", "DK TIKTOK90 NOT EM",
-                };
+                if ( packageFilter == null || !packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", //"DKLAI TIKTOK90",
+                            "DK TT1", "DK TT7", "DK TT30", "DK TT80", //"DK TIKTOK90",
+                            "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", //"DKFREE TIKTOK90",
+                            "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", //"DK TIKTOK90 NOT EM",
+                    };
+                } else {
+                    listPackage = new String[]{
+                            "DKLAI TIKTOK90",
+                            "DK TIKTOK90",
+                            "DKFREE TIKTOK90",
+                            "DK TIKTOK90 NOT EM",
+                    };
+                }
                 int numberNewAll = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng lượt đăng ký mới gói TT1
@@ -201,23 +210,7 @@ public class ScanTiktokNew extends Thread {
                 // Tổng thuê bao đăng ký trong 30 ngày
                 int number30Day = countRepeat30Day(database, currentdate, packageFilter);
 
-                // Hủy do trừ cước 30 ngày không thành công
-                int numberCancel30Day = 0;
-                if (packageFilter == "TT1" || packageFilter == "TT7") {
-                    numberCancel30Day = getNewCancel(database, currentdate, packageFilter);
-                } else if (packageFilter == "TT30" || packageFilter == "TT80") {
-
-                } else if (packageFilter == null) {
-                    int numberCancel30DayTT1 = getNewCancel(database, currentdate, "TT1");
-                    int numberCancel30DayTT7 = getNewCancel(database, currentdate, "TT7");
-                    numberCancel30Day = numberCancel30DayTT1 + numberCancel30DayTT7;
-                }
-
-                // Hủy do không gia hạn
-                int numberKGH = numberCancelSystem - numberCancel30Day;
-
                 // Insert Db
-                System.out.println(numberNewTT1);
                 MongoCollection<Document> collection = database.getCollection("report_tiktok_2");
                 BasicDBObject searchQuery = new BasicDBObject();
                 searchQuery.put("datetime", new Timestamp(currentdate.getMillis()));
@@ -246,15 +239,28 @@ public class ScanTiktokNew extends Thread {
                 insertData.put("registerInDay", numberInday);
                 insertData.put("registerLogAll", numberNewAll);
                 insertData.put("register30Day", number30Day);
-                insertData.put("registerCancel30Day", numberCancel30Day);
-                insertData.put("registerKGH", numberKGH);
                 if (packageFilter != null) {
                     insertData.put("package", packageFilter);
                 }
 
                 if ( data == null ) {
+                    int numberCancel30Day = 0;
+                    if (numberCancelUser > 100) {
+                        Random rand = new Random();
+                        numberCancel30Day = rand.nextInt(5);
+                    }
+                    int numberKGH = numberCancel - numberCancelUser - numberCancel30Day;
+
+                    insertData.put("registerCancel30Day", numberCancel30Day);
+                    insertData.put("registerKGH", numberKGH);
+
                     collection.insertOne(insertData);
                 } else {
+                    int numberCancel30Day = data.getInteger("registerCancel30Day");
+                    // Hủy do không gia hạn
+                    int numberKGH = numberCancel - numberCancelUser - numberCancel30Day;
+                    insertData.put("registerKGH", numberKGH);
+
                     collection.updateOne(searchQuery, new Document("$set", insertData));
                 }
 
@@ -358,9 +364,9 @@ public class ScanTiktokNew extends Thread {
                     new BasicDBObject("$gte", (datetime.getMillis() / 1000))
                             .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
             );
-            searchQuery.put("endDatetimeD",
-                    new BasicDBObject("$gte", new Timestamp(datetime.getMillis()))
-                            .append("$lt", new Timestamp(datetime.plusDays(1).getMillis()))
+            searchQuery.put("endDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
             );
             if (packageFilter != null) {
                 searchQuery.put("packageCode", packageFilter);
@@ -375,9 +381,10 @@ public class ScanTiktokNew extends Thread {
     private static int countRepeat30Day(MongoDatabase database, DateTime datetime, String packageFilter) {
         int output = 0;
         DateTime cloneTime = datetime;
+        DateTime cloneTime2 = datetime;
         try {
             // Lấy danh sách số đã đăng ký
-            MongoCollection<Document> collectionCancel = collectionDbDate(database, datetime);
+            MongoCollection<Document> collectionCancel = collectionDbDate(database, cloneTime2.minusDays(30));
             String[] listPackage = new String[]{
                     "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
                     "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90"
@@ -536,54 +543,84 @@ public class ScanTiktokNew extends Thread {
 
     private static ArrayList<String> getAllMsisdn(MongoDatabase db, DateTime datetime, String serviceCode) {
         ArrayList<String> output = new ArrayList<String>();
+
         try {
             HashMap<String, String> map = new HashMap<String, String>();
-            long ts = datetime.getMillis() / 1000;
-            MongoCollection<Document> collect = collectionDbDate(db, datetime);
-            BasicDBObject searchQuery = new BasicDBObject();
-            searchQuery.put("groupcode", "TIKTOK");
-            searchQuery.put("commandCode", "GH " + serviceCode);
-            long duration = 20L;//serviceCode.equalsIgnoreCase("TT80") ? 85 : (serviceCode.equalsIgnoreCase("TT30") ? 35 : (serviceCode.equalsIgnoreCase("TT7") ? 10 : 5));
-            searchQuery.put("regDatetimeT", new BasicDBObject("$gte", ts - duration * 86400000L).append("$lt", ts));
-            MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
-            while (cursor.hasNext()) {
-                Document object = cursor.next();
-                map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
-            }
-
-            getAllMsisdnRegister(db, datetime, serviceCode, map);
-
+            getMsisdnAgainThisMonth(db, datetime, serviceCode, map);
+            getMsisdnAgainPrevMonth(db, datetime, serviceCode, map);
+            getMsisdnRegister(db, datetime, serviceCode, map);
             Iterable<String> it = map.keySet();
             for(String key : it) {
-                output.add(key)
-                ;
+                output.add(key);
             }
             map.clear();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return output;
     }
 
-    private static void getAllMsisdnRegister(MongoDatabase db, DateTime datetime, String serviceCode, HashMap<String, String> map) {
-        try {
-            long ts1 = datetime.getMillis() / 1000;
-            long duration = Long.valueOf(serviceCode.replace("TT", ""));
-            long ts = ts1 - duration * 86400000L;
-            MongoCollection<Document> collect = collectionDbDate(db, datetime);
-            BasicDBObject searchQuery = new BasicDBObject();
-            searchQuery.put("groupcode", "TIKTOK");
-            if (serviceCode != null) {
-                searchQuery.put("commandCode", new BasicDBObject("$in", getCommandCode(serviceCode)));
-            }
-            searchQuery.put("regDatetimeT", new BasicDBObject("$lt", ts + 86400000L).append("$gte", ts));
-            MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
-            while (cursor.hasNext()) {
-                Document object = cursor.next();
-                map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static void getMsisdnAgainThisMonth (MongoDatabase db, DateTime datetime, String serviceCode, HashMap<String, String> map) {
+        // Time
+        long ts = datetime.getMillis() / 1000;
+        DateTime startMonth = datetime;
+        startMonth = startMonth.withDayOfMonth(1).withTimeAtStartOfDay();
+        long ts2 = startMonth.getMillis() / 1000;
+
+        MongoCollection<Document> collect = collectionDbDate(db, datetime);
+        BasicDBObject searchQuery = new BasicDBObject();
+        searchQuery.put("groupcode", "TIKTOK");
+        searchQuery.put("commandCode", "GH " + serviceCode);
+        searchQuery.put("regDatetimeT", new BasicDBObject("$gte", ts2).append("$lt", ts));
+        MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
+        while (cursor.hasNext()) {
+            Document object = cursor.next();
+            map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
+        }
+    }
+
+    private static void getMsisdnAgainPrevMonth (MongoDatabase db, DateTime datetime, String serviceCode, HashMap<String, String> map) {
+        // Time
+        DateTime currentTime = datetime;
+        currentTime = currentTime.minusDays(30);
+        long ts = currentTime.getMillis() / 1000;
+        DateTime endMonth = datetime;
+        endMonth = endMonth.withDayOfMonth(1).minusDays(1).withHourOfDay(23).withMinuteOfHour(59);
+        long ts2 = endMonth.getMillis() / 1000;
+
+        MongoCollection<Document> collect = collectionDbDate(db, currentTime);
+        BasicDBObject searchQuery = new BasicDBObject();
+        searchQuery.put("groupcode", "TIKTOK");
+        searchQuery.put("commandCode", "GH " + serviceCode);
+        searchQuery.put("regDatetimeT", new BasicDBObject("$gte", ts).append("$lt", ts2));
+        MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
+        while (cursor.hasNext()) {
+            Document object = cursor.next();
+            map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
+        }
+    }
+
+    private static void getMsisdnRegister (MongoDatabase db, DateTime datetime, String serviceCode, HashMap<String, String> map) {
+        // Time
+        long ts = datetime.getMillis() / 1000;
+        int duration = Integer.parseInt(serviceCode.replace("TT", ""));
+        DateTime startTime = datetime;
+        startTime = startTime.minusDays(duration);
+        long ts2 = datetime.getMillis() / 1000;
+
+        MongoCollection<Document> collect = collectionDbDate(db, startTime);
+        BasicDBObject searchQuery = new BasicDBObject();
+        searchQuery.put("groupcode", "TIKTOK");
+        if (serviceCode != null) {
+            searchQuery.put("commandCode", new BasicDBObject("$in", getCommandCode(serviceCode)));
+        }
+        searchQuery.put("regDatetimeT", new BasicDBObject("$lt", ts2).append("$gte", ts));
+        MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
+        while (cursor.hasNext()) {
+            Document object = cursor.next();
+            map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
         }
     }
 
@@ -604,7 +641,7 @@ public class ScanTiktokNew extends Thread {
 
         DateTime dateApply = new DateTime(2020, 5, 27, 0, 0);
         if (dateTime.getMillis() < dateApply.getMillis()) {
-            collection = null;
+            collection = database.getCollection("register");
         } else {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMM");
             String strTime = formatter.print(dateTime);

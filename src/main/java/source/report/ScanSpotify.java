@@ -14,6 +14,7 @@ import source.helper.ConnectDb;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
 
 public class ScanSpotify extends Thread {
 
@@ -27,6 +28,7 @@ public class ScanSpotify extends Thread {
                 process("SF7", null,  null);
                 process("SF30", null,  null);
                 process("SF80", null,  null);
+                System.out.println("Spotify-Thread run:" + new Date());
             } catch (Exception e) {
                 e.printStackTrace();
             }
