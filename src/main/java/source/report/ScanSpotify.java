@@ -13,6 +13,7 @@ import org.joda.time.format.DateTimeFormatter;
 import source.helper.ConnectDb;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -182,6 +183,9 @@ public class ScanSpotify extends Thread {
                 // Tổng thuê bao đăng ký hủy trong ngày
                 int numberInday = countInday(database, currentdate, packageFilter);
 
+                // Tổng thuê bao đăng ký trong 30 ngày
+                int number30Day = countRepeat30Day(database, currentdate, packageFilter);
+
                 // Insert Db
                 MongoCollection<Document> collection = database.getCollection("report_spotify");
                 BasicDBObject searchQuery = new BasicDBObject();
@@ -208,6 +212,7 @@ public class ScanSpotify extends Thread {
                 insertData.put("registerRevenue", numberRevenue);
                 insertData.put("registerInDay", numberInday);
                 insertData.put("registerLogAll", numberNewAll);
+                insertData.put("register30Day", number30Day);
                 if (packageFilter != null) {
                     insertData.put("package", packageFilter);
                 }
@@ -330,12 +335,85 @@ public class ScanSpotify extends Thread {
         return output;
     }
 
+    private static int countRepeat30Day(MongoDatabase database, DateTime datetime, String packageFilter) {
+        int output = 0;
+        DateTime cloneTime = datetime;
+        DateTime cloneTime2 = datetime;
+        try {
+            // Lấy danh sách số đã đăng ký
+            MongoCollection<Document> collectionCancel = collectionDbDate(database, cloneTime2.minusDays(30));
+            String[] listPackage = new String[]{
+                    "DK SF1", "DK SF7", "DK SF30", "DK SF80",
+                    "DKFREE SF1", "DKFREE SF7", "DKFREE SF30", "DKFREE SF80",
+            };
+            BasicDBObject match = null;
+            if (packageFilter == null) {
+                match = new BasicDBObject("$match",
+                        new BasicDBObject("groupcode", "SPOTIFY"
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$lte", (datetime.plusDays(1).getMillis() / 1000))
+                                        .append("$gte", (datetime.minusDays(30).getMillis() / 1000))
+                        ).append("status", "3")
+                );
+            } else {
+                match = new BasicDBObject("$match",
+                        new BasicDBObject("groupcode", "SPOTIFY"
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$lte", (datetime.plusDays(1).getMillis() / 1000))
+                                        .append("$gte", (datetime.minusDays(30).getMillis() / 1000))
+                        ).append("packageCode", packageFilter)
+                                .append("status", "3")
+                );
+            }
+            AggregateIterable<Document> searchQuery = collectionCancel.aggregate(Arrays.asList(
+                    match,
+                    new BasicDBObject("$group",
+                            new BasicDBObject("_id",
+                                    new BasicDBObject("msisdn", "$msisdn")
+                            )
+                    )
+            ));
+
+            ArrayList<String> listRegister = new ArrayList<String>();
+            for (Document dbObject : searchQuery)
+            {
+                Document msisdnDoc = (Document) dbObject.get("_id");
+                String msisdn = (String) msisdnDoc.get("msisdn");
+                if (msisdn != null) {
+                    listRegister.add(msisdn);
+                }
+            }
+
+            // Lấy danh sách
+            MongoCollection<Document> collection = collectionDbDate(database, cloneTime);
+            BasicDBObject searchQueryData = new BasicDBObject();
+            searchQueryData.put("commandCode",
+                    new BasicDBObject("$in", listPackage)
+            );
+            searchQueryData.put("regDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
+            );
+            searchQueryData.put("msisdn",
+                    new BasicDBObject("$nin", listRegister)
+            );
+            if (packageFilter != null) {
+                searchQueryData.put("packageCode", packageFilter);
+            }
+            output = (int) collection.count(searchQueryData);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
+    }
+
     private static MongoCollection<Document> collectionDbDate(MongoDatabase database, DateTime dateTime) {
         MongoCollection<Document> collection;
 
         DateTime dateApply = new DateTime(2020, 5, 27, 0, 0);
         if (dateTime.getMillis() < dateApply.getMillis()) {
-            collection = null;
+            collection = database.getCollection("register");
         } else {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMM");
             String strTime = formatter.print(dateTime);

@@ -27,6 +27,7 @@ public class ScanTiktokNew extends Thread {
                 process("TT30", null,  null);
                 process("TT80", null,  null);
                 process("TIKTOK90", null,  null);
+                process("MF4IP", null,  null);
                 System.out.println("Tiktok-Thread run" + new Date());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -37,10 +38,11 @@ public class ScanTiktokNew extends Thread {
     public static void scan(DateTime fromDate, DateTime toDate) {
         process(null, fromDate,  toDate);
         process("TT1", fromDate,  toDate);
-        process("TT7", fromDate,  toDate);
-        process("TT30", fromDate,  toDate);
-        process("TT80", fromDate,  toDate);
-        process("TIKTOK90", fromDate,  toDate);
+//        process("TT7", fromDate,  toDate);
+//        process("TT30", fromDate,  toDate);
+//        process("TT80", fromDate,  toDate);
+//        process("TIKTOK90", fromDate,  toDate);
+//        process("MF4IP", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -73,21 +75,33 @@ public class ScanTiktokNew extends Thread {
                 currentdate = currentdate.minusDays(1)) {
                 System.out.println("TIKTOK_" + packageFilter + "_" + currentdate.toString());
 
-                String[] listPackage;
+                String[] listPackage = null;
                 // Tổng lượt đăng ký tất cả các gói
-                if ( packageFilter == null || !packageFilter.equals("TIKTOK90")) {
+                if ( packageFilter == null ||
+                        packageFilter.equals("TT1") ||
+                        packageFilter.equals("TT7") ||
+                        packageFilter.equals("TT30") ||
+                        packageFilter.equals("TT80")
+                ) {
                     listPackage = new String[]{
                             "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", //"DKLAI TIKTOK90",
                             "DK TT1", "DK TT7", "DK TT30", "DK TT80", //"DK TIKTOK90",
                             "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", //"DKFREE TIKTOK90",
                             "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", //"DK TIKTOK90 NOT EM",
                     };
-                } else {
+                } else if (packageFilter.equals("TIKTOK90")) {
                     listPackage = new String[]{
                             "DKLAI TIKTOK90",
                             "DK TIKTOK90",
                             "DKFREE TIKTOK90",
                             "DK TIKTOK90 NOT EM",
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "DKLAI MF4IP",
+                            "DK MF4IP",
+                            "DKFREE MF4IP",
+                            "DK MF4IP NOT EM",
                     };
                 }
                 int numberNewAll = countRegister(database, currentdate, listPackage, packageFilter);
@@ -122,6 +136,12 @@ public class ScanTiktokNew extends Thread {
                 };
                 int numberNewTIKTOK90 = countRegister(database, currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký mới gọi MF4IP
+                listPackage = new String[]{
+                        "DK MF4IP"
+                };
+                int numberNewMF4IP = countRegister(database, currentdate, listPackage, packageFilter);
+
                 // Tổng lượt đăng ký lại gói TT1
                 listPackage = new String[]{
                         "DKLAI TT1"
@@ -152,53 +172,81 @@ public class ScanTiktokNew extends Thread {
                 };
                 int numberAgainTIKTOK90 = countRegister(database, currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký lại gói MF4IP
+                listPackage = new String[]{
+                        "DKLAI MF4IP"
+                };
+                int numberAgainMF4IP = countRegister(database, currentdate, listPackage, packageFilter);
+
                 // Tổng đăng ký miễn phí
                 listPackage = new String[]{
-                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90"
+                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90", "DKFREE MF4IP"
                 };
                 int numberNewFree = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng đăng ký miễn phí
                 listPackage = new String[]{
-                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", "DK TIKTOK90 NOT EM"
+                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", "DK TIKTOK90 NOT EM", "DK MF4IP NOT EM"
                 };
                 int numberNewFail = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng gia hạn
                 listPackage = new String[]{
-                        "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90",
-                        "GHMK TIKTOK90",
-                        "GHCD TIKTOK90"
+                        "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90", "GH MF4IP",
+                        "GHMK TIKTOK90", "GHMK MF4IP",
+                        "GHCD TIKTOK90", "GHCD MF4IP"
                 };
                 int numberMore = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy
                 listPackage = new String[]{
-                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90",
-                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90",
+                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90", "HTHUY MF4IP",
+                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90", "HUY MF4IP",
                 };
-                int numberCancel = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberCancel = countCancel(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do người dùng hủy
                 listPackage = new String[]{
-                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90"
+                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90", "HUY MF4IP"
                 };
-                int numberCancelUser = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberCancelUser = countCancel(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do hệ thống hủy
                 listPackage = new String[]{
-                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90",
+                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90", "HTHUY MF4IP",
                 };
-                int numberCancelSystem = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberCancelSystem = countCancel(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb phát sinh cước
-                listPackage = new String[]{
-                        "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", "DKLAI TIKTOK90",
-                        "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
-                        "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90",
-                        "GHMK TIKTOK90",
-                        "GHCD TIKTOK90"
-                };
+                listPackage = new String[]{};
+                if ( packageFilter == null ||
+                        packageFilter.equals("TT1") ||
+                        packageFilter.equals("TT7") ||
+                        packageFilter.equals("TT30") ||
+                        packageFilter.equals("TT80")
+                ) {
+                    listPackage = new String[]{
+                            "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80",
+                            "DK TT1", "DK TT7", "DK TT30", "DK TT80",
+                            "GH TT1", "GH TT7", "GH TT30", "GH TT80"
+                    };
+                } else if (packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "DKLAI TIKTOK90",
+                            "DK TIKTOK90",
+                            "GH TIKTOK90",
+                            "GHMK TIKTOK90",
+                            "GHCD TIKTOK90"
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "DKLAI MF4IP",
+                            "DK MF4IP",
+                            "GH MF4IP",
+                            "GHMK MF4IP",
+                            "GHCD MF4IP"
+                    };
+                }
                 int numberPSC = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng doanh thu
@@ -223,11 +271,13 @@ public class ScanTiktokNew extends Thread {
                 insertData.put("registerNewSuccessTT30", numberNewTT30);
                 insertData.put("registerNewSuccessTT80", numberNewTT80);
                 insertData.put("registerNewSuccessTIKTOK90", numberNewTIKTOK90);
+                insertData.put("registerNewSuccessMF4IP", numberNewMF4IP);
                 insertData.put("registerNewAgainTT1", numberAgainTT1);
                 insertData.put("registerNewAgainTT7", numberAgainTT7);
                 insertData.put("registerNewAgainTT30", numberAgainTT30);
                 insertData.put("registerNewAgainTT80", numberAgainTT80);
                 insertData.put("registerNewAgainTIKTOK90", numberAgainTIKTOK90);
+                insertData.put("registerNewAgainMF4IP", numberAgainMF4IP);
                 insertData.put("registerNewFree", numberNewFree);
                 insertData.put("registerNewFalse", numberNewFail);
                 insertData.put("registerMore", numberMore);
@@ -241,6 +291,11 @@ public class ScanTiktokNew extends Thread {
                 insertData.put("register30Day", number30Day);
                 if (packageFilter != null) {
                     insertData.put("package", packageFilter);
+
+                    if (packageFilter.equals("MF4IP")) {
+                        int numberRevenueMF4IP = (numberNewMF4IP + numberAgainMF4IP + numberMore) * 3000;
+                        insertData.put("registerRevenueMF4IP", numberRevenueMF4IP);
+                    }
                 }
 
                 if ( data == null ) {
@@ -294,17 +349,79 @@ public class ScanTiktokNew extends Thread {
         return output;
     }
 
+    private static int countCancel(MongoDatabase database, DateTime datetime, String[] listPackage, String packageFilter) {
+        int output = 0;
+        try {
+            // Current month
+            MongoCollection<Document> collection = collectionDbDate(database, datetime);
+            BasicDBObject searchQuery = new BasicDBObject();
+            searchQuery.put("commandCode",
+                    new BasicDBObject("$in", listPackage)
+            );
+            searchQuery.put("regDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
+            );
+            if (packageFilter != null) {
+                searchQuery.put("packageCode", packageFilter);
+            }
+            output = (int) collection.count(searchQuery);
+
+            // next month
+            DateTime nextdate = datetime;
+            nextdate = nextdate.plusMonths(1).withDayOfMonth(1);
+            collection = collectionDbDate(database, nextdate);
+            searchQuery = new BasicDBObject();
+            searchQuery.put("commandCode",
+                    new BasicDBObject("$in", listPackage)
+            );
+            searchQuery.put("regDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
+            );
+            if (packageFilter != null) {
+                searchQuery.put("packageCode", packageFilter);
+            }
+            output = output + (int) collection.count(searchQuery);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
+    }
+
     private static int sumRevenue(MongoDatabase database, DateTime datetime, String packageFilter) {
         int output = 0;
         try {
             MongoCollection<Document> collection = collectionDbDate(database, datetime);
-            String[] listPackage = new String[]{
-                    "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", "DKLAI TIKTOK90",
-                    "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
-                    "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90",
-                    "GHMK TIKTOK90",
-                    "GHCD TIKTOK90"
-            };
+            String[] listPackage = new String[]{};
+            if ( packageFilter == null ||
+                    packageFilter.equals("TT1") ||
+                    packageFilter.equals("TT7") ||
+                    packageFilter.equals("TT30") ||
+                    packageFilter.equals("TT80")
+            ) {
+                listPackage = new String[]{
+                        "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80",
+                        "DK TT1", "DK TT7", "DK TT30", "DK TT80",
+                        "GH TT1", "GH TT7", "GH TT30", "GH TT80"
+                };
+            } else if (packageFilter.equals("TIKTOK90")) {
+                listPackage = new String[]{
+                        "DKLAI TIKTOK90",
+                        "DK TIKTOK90",
+                        "GH TIKTOK90",
+                        "GHMK TIKTOK90",
+                        "GHCD TIKTOK90"
+                };
+            } else if (packageFilter.equals("MF4IP")) {
+                listPackage = new String[]{
+                        "DKLAI MF4IP",
+                        "DK MF4IP",
+                        "GH MF4IP",
+                        "GHMK MF4IP",
+                        "GHCD MF4IP"
+                };
+            }
             BasicDBObject match = null;
             if (packageFilter == null) {
                 match = new BasicDBObject("$match",
@@ -353,8 +470,8 @@ public class ScanTiktokNew extends Thread {
         try {
             MongoCollection<Document> collection = collectionDbDate(database, datetime);
             String[] listPackage = new String[]{
-                    "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90",
-                    "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90",
+                    "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90", "HTHUY MF4IP",
+                    "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90", "HUY MF4IP",
             };
             BasicDBObject searchQuery = new BasicDBObject();
             searchQuery.put("commandCode",
@@ -382,12 +499,16 @@ public class ScanTiktokNew extends Thread {
         int output = 0;
         DateTime cloneTime = datetime;
         DateTime cloneTime2 = datetime;
+        cloneTime2 = cloneTime2.minusDays(30);
         try {
+            ArrayList<String> listRegister = new ArrayList<String>();
+
             // Lấy danh sách số đã đăng ký
-            MongoCollection<Document> collectionCancel = collectionDbDate(database, cloneTime2.minusDays(30));
+            // Last Month
+            MongoCollection<Document> collectionCancel = collectionDbDate(database, cloneTime2);
             String[] listPackage = new String[]{
-                    "DK TT1", "DK TT7", "DK TT30", "DK TT80", "DK TIKTOK90",
-                    "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90"
+                    "DK TT1", "DK TT7", "DK TT30", "DK TT80",
+                    "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80"
             };
             BasicDBObject match = null;
             if (packageFilter == null) {
@@ -417,7 +538,6 @@ public class ScanTiktokNew extends Thread {
                     )
             ));
 
-            ArrayList<String> listRegister = new ArrayList<String>();
             for (Document dbObject : searchQuery)
             {
                 Document msisdnDoc = (Document) dbObject.get("_id");
@@ -427,8 +547,46 @@ public class ScanTiktokNew extends Thread {
                 }
             }
 
+            // CurrentMonth
+            collectionCancel = collectionDbDate(database, datetime);
+            if (packageFilter == null) {
+                match = new BasicDBObject("$match",
+                        new BasicDBObject("groupcode", "TIKTOK"
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$lte", (datetime.plusDays(1).getMillis() / 1000))
+                                        .append("$gte", (datetime.minusDays(30).getMillis() / 1000))
+                        ).append("status", "3")
+                );
+            } else {
+                match = new BasicDBObject("$match",
+                        new BasicDBObject("groupcode", "TIKTOK"
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$lte", (datetime.plusDays(1).getMillis() / 1000))
+                                        .append("$gte", (datetime.minusDays(30).getMillis() / 1000))
+                        ).append("packageCode", packageFilter)
+                                .append("status", "3")
+                );
+            }
+            searchQuery = collectionCancel.aggregate(Arrays.asList(
+                    match,
+                    new BasicDBObject("$group",
+                            new BasicDBObject("_id",
+                                    new BasicDBObject("msisdn", "$msisdn")
+                            )
+                    )
+            ));
+
+            for (Document dbObject : searchQuery)
+            {
+                Document msisdnDoc = (Document) dbObject.get("_id");
+                String msisdn = (String) msisdnDoc.get("msisdn");
+                if (msisdn != null) {
+                    listRegister.add(msisdn);
+                }
+            }
+
             // Lấy danh sách
-            MongoCollection<Document> collection = collectionDbDate(database, cloneTime);
+            MongoCollection<Document> collection = collectionDbDate(database, datetime);
             BasicDBObject searchQueryData = new BasicDBObject();
             searchQueryData.put("commandCode",
                     new BasicDBObject("$in", listPackage)
@@ -444,6 +602,9 @@ public class ScanTiktokNew extends Thread {
                 searchQueryData.put("packageCode", packageFilter);
             }
             output = (int) collection.count(searchQueryData);
+
+            System.out.println("Lần đầu 30 ngày Basic:" + output);
+            System.out.println("Số 30 ngày:" + listRegister.size());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -516,124 +677,12 @@ public class ScanTiktokNew extends Thread {
             }
             output = (int) collection.count(searchQueryData);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return output;
-    }
-
-    private static int getNewCancel(MongoDatabase db, DateTime datetime, String serviceCode) {
-        int output = 0;
-        try {
-            ArrayList<String> msisdn = getAllMsisdn(db, datetime, serviceCode);
-            MongoCollection<Document> table = collectionDbDate(db, datetime);
-            BasicDBObject search = new BasicDBObject();
-            search.put("msisdn", new BasicDBObject("$nin", msisdn));
-            long ts1 = (datetime.getMillis() / 1000);
-            long ts2 = (datetime.plusDays(1).getMillis() / 1000);
-            search.put("created_at", new BasicDBObject("$gte", ts1).append("$lte", ts2));
-            search.put("commandCode", "HTHUY " + serviceCode);
-            output = (int) table.count(search);
-            System.out.println("--------Hệ thống hủy 30 ngày "+ datetime +": "+ output);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return output;
-    }
-
-    private static ArrayList<String> getAllMsisdn(MongoDatabase db, DateTime datetime, String serviceCode) {
-        ArrayList<String> output = new ArrayList<String>();
-
-        try {
-            HashMap<String, String> map = new HashMap<String, String>();
-            getMsisdnAgainThisMonth(db, datetime, serviceCode, map);
-            getMsisdnAgainPrevMonth(db, datetime, serviceCode, map);
-            getMsisdnRegister(db, datetime, serviceCode, map);
-            Iterable<String> it = map.keySet();
-            for(String key : it) {
-                output.add(key);
-            }
-            map.clear();
+            System.out.println("Lần đầu 30 ngày:" + output);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return output;
-    }
-
-    private static void getMsisdnAgainThisMonth (MongoDatabase db, DateTime datetime, String serviceCode, HashMap<String, String> map) {
-        // Time
-        long ts = datetime.getMillis() / 1000;
-        DateTime startMonth = datetime;
-        startMonth = startMonth.withDayOfMonth(1).withTimeAtStartOfDay();
-        long ts2 = startMonth.getMillis() / 1000;
-
-        MongoCollection<Document> collect = collectionDbDate(db, datetime);
-        BasicDBObject searchQuery = new BasicDBObject();
-        searchQuery.put("groupcode", "TIKTOK");
-        searchQuery.put("commandCode", "GH " + serviceCode);
-        searchQuery.put("regDatetimeT", new BasicDBObject("$gte", ts2).append("$lt", ts));
-        MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
-        while (cursor.hasNext()) {
-            Document object = cursor.next();
-            map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
-        }
-    }
-
-    private static void getMsisdnAgainPrevMonth (MongoDatabase db, DateTime datetime, String serviceCode, HashMap<String, String> map) {
-        // Time
-        DateTime currentTime = datetime;
-        currentTime = currentTime.minusDays(30);
-        long ts = currentTime.getMillis() / 1000;
-        DateTime endMonth = datetime;
-        endMonth = endMonth.withDayOfMonth(1).minusDays(1).withHourOfDay(23).withMinuteOfHour(59);
-        long ts2 = endMonth.getMillis() / 1000;
-
-        MongoCollection<Document> collect = collectionDbDate(db, currentTime);
-        BasicDBObject searchQuery = new BasicDBObject();
-        searchQuery.put("groupcode", "TIKTOK");
-        searchQuery.put("commandCode", "GH " + serviceCode);
-        searchQuery.put("regDatetimeT", new BasicDBObject("$gte", ts).append("$lt", ts2));
-        MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
-        while (cursor.hasNext()) {
-            Document object = cursor.next();
-            map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
-        }
-    }
-
-    private static void getMsisdnRegister (MongoDatabase db, DateTime datetime, String serviceCode, HashMap<String, String> map) {
-        // Time
-        long ts = datetime.getMillis() / 1000;
-        int duration = Integer.parseInt(serviceCode.replace("TT", ""));
-        DateTime startTime = datetime;
-        startTime = startTime.minusDays(duration);
-        long ts2 = datetime.getMillis() / 1000;
-
-        MongoCollection<Document> collect = collectionDbDate(db, startTime);
-        BasicDBObject searchQuery = new BasicDBObject();
-        searchQuery.put("groupcode", "TIKTOK");
-        if (serviceCode != null) {
-            searchQuery.put("commandCode", new BasicDBObject("$in", getCommandCode(serviceCode)));
-        }
-        searchQuery.put("regDatetimeT", new BasicDBObject("$lt", ts2).append("$gte", ts));
-        MongoCursor<Document> cursor = collect.find(searchQuery).iterator();
-        while (cursor.hasNext()) {
-            Document object = cursor.next();
-            map.put((String) object.get("msisdn"), (String) object.get("msisdn"));
-        }
-    }
-
-    private static ArrayList<String> getCommandCode(String serviceCode) {
-
-        ArrayList<String> COMMAND_CODE = new ArrayList<String>();
-        if(COMMAND_CODE.size() == 0) {
-            COMMAND_CODE.add("DKLAI " + serviceCode);
-            COMMAND_CODE.add("DK " + serviceCode);
-            COMMAND_CODE.add("DKFREE " + serviceCode);
-            COMMAND_CODE.add("DK " + serviceCode + " NOT EM");
-        }
-        return COMMAND_CODE;
     }
 
     private static MongoCollection<Document> collectionDbDate(MongoDatabase database, DateTime dateTime) {

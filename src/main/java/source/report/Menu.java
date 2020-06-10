@@ -47,6 +47,7 @@ public class Menu extends Thread {
             System.out.println("- 2: Tiktok ");
             System.out.println("- 3: HTV");
             System.out.println("- 4: THVL");
+            System.out.println("- 5: Tiktok Old");
             System.out.print("> ");
 
             try {
@@ -66,6 +67,8 @@ public class Menu extends Thread {
                     executeHtv();
                 } else if (scan == 4) {
                     executeThvl();
+                } else if (scan == 5) {
+                    executeTiktokOld();
                 }
             }
 
@@ -93,7 +96,7 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
                 DateTime fromDate = toDate.minusDays(scan);
 
                 ScanSpotify.scan(fromDate, toDate);
@@ -154,6 +157,47 @@ public class Menu extends Thread {
         }
     }
 
+    public void executeTiktokOld() {
+        String option = null;
+        System.out.println();
+        System.out.println("- scan <day>");
+        System.out.println("- yyyy mm dd");
+        System.out.println("- Q Quit");
+        System.out.print("> ");
+
+        try {
+            option = keyboard.readLine();
+        } catch (Exception e) {
+            System.out.println("exception reading keyboard " + e);
+        }
+
+        if ( option != null && option.startsWith("scan") ) {
+            String[] split = option.split(" ");
+            int scan = Integer.parseInt(split[1]);
+            try {
+                if (scan > 100) {
+                    scan = 100;
+                }
+                DateTime toDate = new DateTime(2020, 5, 26, 0, 0);;
+                DateTime fromDate = toDate.minusDays(scan);
+
+                ScanTiktokOld.scan(fromDate, toDate);
+            } catch (Exception ignored) {}
+        } else if (option != null && option.length() == 10) {
+            try {
+                String[] split = option.split(" ");
+                int year = Integer.parseInt(split[0]);
+                int month = Integer.parseInt(split[1]);
+                int day = Integer.parseInt(split[2]);
+                DateTime fromDate = new DateTime(2020, 5, 26, 0, 0);;
+                DateTime toDate = fromDate;
+                ScanTiktokOld.scan(fromDate, toDate);
+            } catch (Exception ignore) {}
+        } else if (option != null && "Q".equals(option.toUpperCase()) ) {
+            exitMenu();
+        }
+    }
+
     public void executeHtv() {
         String option = null;
         System.out.println();
@@ -175,7 +219,7 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
                 DateTime fromDate = toDate.minusDays(scan);
 
                 ScanHtv.scan(fromDate, toDate);
@@ -216,7 +260,7 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
                 DateTime fromDate = toDate.minusDays(scan);
 
                 ScanThvl.scan(fromDate, toDate);
