@@ -8,13 +8,15 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import source.helper.ConnectDb;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ScanThvl extends Thread {
+public class ScanThvlNew extends Thread {
 
     private static final String MONGO_DATABASE = "thvl_new";
 
@@ -57,11 +59,13 @@ public class ScanThvl extends Thread {
         try {
             conn = ConnectDb.createConnection();
             MongoDatabase database = conn.getDatabase(MONGO_DATABASE);
-//            toDate = (toDate == null) ? new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay() : toDate;
-//            fromDate = (fromDate == null) ? toDate.minusDays(2) : fromDate;
+            toDate = (toDate == null) ? new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay() : toDate;
+            fromDate = (fromDate == null) ? toDate.minusDays(2) : fromDate;
 
-            fromDate = new DateTime(2020, 6, 8, 00, 0);
-            toDate = new DateTime(2020, 6, 8, 00, 0);
+            DateTime dateApply = new DateTime(2020, 6, 10, 0, 0);
+            if (fromDate.getMillis() < dateApply.getMillis()) {
+                fromDate = new DateTime(2020, 6, 10, 0, 0);
+            }
 
             for(DateTime currentdate = toDate;
                 currentdate.isAfter(fromDate) || currentdate.isEqual(fromDate);
@@ -208,14 +212,14 @@ public class ScanThvl extends Thread {
     private static int countRegister(MongoDatabase database, DateTime datetime, String[] listPackage, String packageFilter) {
         int output = 0;
         try {
-            MongoCollection<Document> collection = database.getCollection("register");
+            MongoCollection<Document> collection = collectionDbDate(database, datetime);
             BasicDBObject searchQuery = new BasicDBObject();
             searchQuery.put("commandCode",
                     new BasicDBObject("$in", listPackage)
             );
-            searchQuery.put("regDatetimeD",
-                    new BasicDBObject("$gte", new Timestamp(datetime.getMillis()))
-                            .append("$lt", new Timestamp(datetime.plusDays(1).getMillis()))
+            searchQuery.put("regDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
             );
             if (packageFilter != null) {
                 searchQuery.put("packageCode", packageFilter);
@@ -230,7 +234,7 @@ public class ScanThvl extends Thread {
     private static int sumRevenue(MongoDatabase database, DateTime datetime, String packageFilter) {
         int output = 0;
         try {
-            MongoCollection<Document> collection = database.getCollection("register");
+            MongoCollection<Document> collection = collectionDbDate(database, datetime);
             String[] listPackage = new String[]{
                     "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
                     "DK VL1", "DK VL30", "DK VL80",
@@ -242,18 +246,18 @@ public class ScanThvl extends Thread {
                 match = new BasicDBObject("$match",
                         new BasicDBObject("commandCode",
                                 new BasicDBObject("$in", listPackage)
-                        ).append("regDatetimeD",
-                                new BasicDBObject("$gte", new Timestamp(datetime.getMillis()))
-                                        .append("$lt", new Timestamp(datetime.plusDays(1).getMillis()))
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                                        .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
                         )
                 );
             } else {
                 match = new BasicDBObject("$match",
                         new BasicDBObject("commandCode",
                                 new BasicDBObject("$in", listPackage)
-                        ).append("regDatetimeD",
-                                new BasicDBObject("$gte", new Timestamp(datetime.getMillis()))
-                                        .append("$lt", new Timestamp(datetime.plusDays(1).getMillis()))
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                                        .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
                         ).append("packageCode", packageFilter)
                 );
             }
@@ -283,7 +287,7 @@ public class ScanThvl extends Thread {
     private static int countInday(MongoDatabase database, DateTime datetime, String packageFilter) {
         int output = 0;
         try {
-            MongoCollection<Document> collection = database.getCollection("register");
+            MongoCollection<Document> collection = collectionDbDate(database, datetime);
             String[] listPackage = new String[]{
                     "HTHUY VL1", "HTHUY VL30",
                     "HUY VL1", "HUY VL30",
@@ -292,13 +296,13 @@ public class ScanThvl extends Thread {
             searchQuery.put("commandCode",
                     new BasicDBObject("$in", listPackage)
             );
-            searchQuery.put("regDatetimeD",
-                    new BasicDBObject("$gte", new Timestamp(datetime.getMillis()))
-                            .append("$lt", new Timestamp(datetime.plusDays(1).getMillis()))
+            searchQuery.put("regDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
             );
-            searchQuery.put("endDatetimeD",
-                    new BasicDBObject("$gte", new Timestamp(datetime.getMillis()))
-                            .append("$lt", new Timestamp(datetime.plusDays(1).getMillis()))
+            searchQuery.put("regDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
             );
             if (packageFilter != null) {
                 searchQuery.put("packageCode", packageFilter);
@@ -316,7 +320,7 @@ public class ScanThvl extends Thread {
         DateTime cloneTime2 = datetime;
         try {
             // Lấy danh sách số đã đăng ký
-            MongoCollection<Document> collectionCancel = database.getCollection("register");
+            MongoCollection<Document> collectionCancel = collectionDbDate(database, datetime);
             String[] listPackage = new String[]{
                     "DK VL1", "DK VL30", "DK VL80",
             };
@@ -359,7 +363,7 @@ public class ScanThvl extends Thread {
             }
 
             // Lấy danh sách
-            MongoCollection<Document> collection = database.getCollection("register");
+            MongoCollection<Document> collection = collectionDbDate(database, datetime);
             BasicDBObject searchQueryData = new BasicDBObject();
             searchQueryData.put("commandCode",
                     new BasicDBObject("$in", listPackage)
@@ -380,6 +384,21 @@ public class ScanThvl extends Thread {
             e.printStackTrace();
         }
         return output;
+    }
+
+    private static MongoCollection<Document> collectionDbDate(MongoDatabase database, DateTime dateTime) {
+        MongoCollection<Document> collection;
+
+        DateTime dateApply = new DateTime(2020, 6, 10, 0, 0);
+        if (dateTime.getMillis() < dateApply.getMillis()) {
+            collection = database.getCollection("register");
+        } else {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMM");
+            String strTime = formatter.print(dateTime);
+            collection = database.getCollection("register_"+ strTime);
+        }
+
+        return collection;
     }
 
 }

@@ -25,7 +25,7 @@ public class Menu extends Thread {
             ScanHtv scanHtv = new ScanHtv();
             scanHtv.start();
             // Scan Thvl
-            ScanThvl scanThvl = new ScanThvl();
+            ScanThvlNew scanThvl = new ScanThvlNew();
             scanThvl.start();
             System.out.println("Scan started!!!");
         } catch (Exception ex) {
@@ -43,11 +43,12 @@ public class Menu extends Thread {
             String option = null;
             System.out.println();
             System.out.println("- Chon dich vu data ip ");
-            System.out.println("- 1: Spotify ");
-            System.out.println("- 2: Tiktok ");
+            System.out.println("- 1: Spotify");
+            System.out.println("- 2: Tiktok");
             System.out.println("- 3: HTV");
             System.out.println("- 4: THVL");
-            System.out.println("- 5: Tiktok Old");
+            System.out.println("- 5: Tiktok Old (27/05/2020)");
+            System.out.println("- 6: THVL Old (09/06/2020)");
             System.out.print("> ");
 
             try {
@@ -69,6 +70,8 @@ public class Menu extends Thread {
                     executeThvl();
                 } else if (scan == 5) {
                     executeTiktokOld();
+                } else if (scan == 6) {
+                    executeThvlOld();
                 }
             }
 
@@ -178,7 +181,7 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(2020, 5, 26, 0, 0);;
+                DateTime toDate = new DateTime(2020, 5, 26, 0, 0);
                 DateTime fromDate = toDate.minusDays(scan);
 
                 ScanTiktokOld.scan(fromDate, toDate);
@@ -189,7 +192,7 @@ public class Menu extends Thread {
                 int year = Integer.parseInt(split[0]);
                 int month = Integer.parseInt(split[1]);
                 int day = Integer.parseInt(split[2]);
-                DateTime fromDate = new DateTime(2020, 5, 26, 0, 0);;
+                DateTime fromDate = new DateTime(2020, 5, 26, 0, 0);
                 DateTime toDate = fromDate;
                 ScanTiktokOld.scan(fromDate, toDate);
             } catch (Exception ignore) {}
@@ -260,7 +263,48 @@ public class Menu extends Thread {
                 if (scan > 100) {
                     scan = 100;
                 }
-                DateTime toDate = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
+                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
+                DateTime fromDate = toDate.minusDays(scan);
+
+                ScanThvlNew.scan(fromDate, toDate);
+            } catch (Exception ignored) {}
+        } else if (option != null && option.length() == 10) {
+            try {
+                String[] split = option.split(" ");
+                int year = Integer.parseInt(split[0]);
+                int month = Integer.parseInt(split[1]);
+                int day = Integer.parseInt(split[2]);
+                DateTime fromDate = new DateTime(year, month, day, 00, 00);
+                DateTime toDate = fromDate;
+                ScanThvlNew.scan(fromDate, toDate);
+            } catch (Exception ignore) {}
+        } else if (option != null && "Q".equals(option.toUpperCase()) ) {
+            exitMenu();
+        }
+    }
+
+    public void executeThvlOld() {
+        String option = null;
+        System.out.println();
+        System.out.println("- scan <day>");
+        System.out.println("- yyyy mm dd");
+        System.out.println("- Q Quit");
+        System.out.print("> ");
+
+        try {
+            option = keyboard.readLine();
+        } catch (Exception e) {
+            System.out.println("exception reading keyboard " + e);
+        }
+
+        if ( option != null && option.startsWith("scan") ) {
+            String[] split = option.split(" ");
+            int scan = Integer.parseInt(split[1]);
+            try {
+                if (scan > 100) {
+                    scan = 100;
+                }
+                DateTime toDate = new DateTime(2020, 6, 10, 0, 0);
                 DateTime fromDate = toDate.minusDays(scan);
 
                 ScanThvl.scan(fromDate, toDate);
@@ -271,7 +315,7 @@ public class Menu extends Thread {
                 int year = Integer.parseInt(split[0]);
                 int month = Integer.parseInt(split[1]);
                 int day = Integer.parseInt(split[2]);
-                DateTime fromDate = new DateTime(year, month, day, 00, 00);
+                DateTime fromDate = new DateTime(2020, 6, 8, 17, 0);
                 DateTime toDate = fromDate;
                 ScanThvl.scan(fromDate, toDate);
             } catch (Exception ignore) {}
