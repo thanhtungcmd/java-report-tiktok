@@ -28,6 +28,8 @@ public class ScanTiktokNew extends Thread {
                 process("TT80", null,  null);
                 process("TIKTOK90", null,  null);
                 process("MF4IP", null,  null);
+                process("THAGA7", null,  null);
+                process("THAGA15", null,  null);
                 System.out.println("Tiktok-Thread run" + new Date());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -36,13 +38,15 @@ public class ScanTiktokNew extends Thread {
     }
 
     public static void scan(DateTime fromDate, DateTime toDate) {
-        process(null, fromDate,  toDate);
-        process("TT1", fromDate,  toDate);
+//        process(null, fromDate,  toDate);
+//        process("TT1", fromDate,  toDate);
 //        process("TT7", fromDate,  toDate);
 //        process("TT30", fromDate,  toDate);
 //        process("TT80", fromDate,  toDate);
 //        process("TIKTOK90", fromDate,  toDate);
 //        process("MF4IP", fromDate,  toDate);
+        process("THAGA7", fromDate,  toDate);
+        process("THAGA15", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -77,12 +81,12 @@ public class ScanTiktokNew extends Thread {
 
                 String[] listPackage = null;
                 // Tổng lượt đăng ký tất cả các gói
-                if ( packageFilter == null ||
+                boolean conditionPackage = packageFilter == null ||
                         packageFilter.equals("TT1") ||
                         packageFilter.equals("TT7") ||
                         packageFilter.equals("TT30") ||
-                        packageFilter.equals("TT80")
-                ) {
+                        packageFilter.equals("TT80");
+                if (conditionPackage) {
                     listPackage = new String[]{
                             "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80", //"DKLAI TIKTOK90",
                             "DK TT1", "DK TT7", "DK TT30", "DK TT80", //"DK TIKTOK90",
@@ -103,7 +107,22 @@ public class ScanTiktokNew extends Thread {
                             "DKFREE MF4IP",
                             "DK MF4IP NOT EM",
                     };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "DKLAI THAGA7",
+                            "DK THAGA7",
+                            "DKFREE THAGA7",
+                            "DK THAGA7 NOT EM",
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "DKLAI THAGA15",
+                            "DK THAGA15",
+                            "DKFREE THAGA15",
+                            "DK THAGA15 NOT EM",
+                    };
                 }
+
                 int numberNewAll = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng lượt đăng ký mới gói TT1
@@ -142,6 +161,18 @@ public class ScanTiktokNew extends Thread {
                 };
                 int numberNewMF4IP = countRegister(database, currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký mới gọi THAGA7
+                listPackage = new String[]{
+                        "DK THAGA7"
+                };
+                int numberNewTHAGA7 = countRegister(database, currentdate, listPackage, packageFilter);
+
+                // Tổng lượt đăng ký mới gọi THAGA15
+                listPackage = new String[]{
+                        "DK THAGA15"
+                };
+                int numberNewTHAGA15 = countRegister(database, currentdate, listPackage, packageFilter);
+
                 // Tổng lượt đăng ký lại gói TT1
                 listPackage = new String[]{
                         "DKLAI TT1"
@@ -178,53 +209,178 @@ public class ScanTiktokNew extends Thread {
                 };
                 int numberAgainMF4IP = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng đăng ký miễn phí
+                // Tổng lượt đăng ký lại gói THAGA7
                 listPackage = new String[]{
-                        "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80", "DKFREE TIKTOK90", "DKFREE MF4IP"
+                        "DKLAI THAGA7"
                 };
-                int numberNewFree = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberAgainTHAGA7 = countRegister(database, currentdate, listPackage, packageFilter);
+
+                // Tổng lượt đăng ký lại gói THAGA15
+                listPackage = new String[]{
+                        "DKLAI THAGA15"
+                };
+                int numberAgainTHAGA15 = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng đăng ký miễn phí
-                listPackage = new String[]{
-                        "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM", "DK TIKTOK90 NOT EM", "DK MF4IP NOT EM"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "DKFREE TT1", "DKFREE TT7", "DKFREE TT30", "DKFREE TT80"
+                    };
+                } else if (packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "DKFREE TIKTOK90",
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "DKFREE MF4IP",
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "DKFREE THAGA7",
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "DKFREE THAGA15",
+                    };
+                }
+                int numberNewFree = countRegister(database, currentdate, listPackage, packageFilter);
+
+                // Tổng đăng ký miễn phí không thành công
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "DK TT1 NOT EM", "DK TT7 NOT EM", "DK TT30 NOT EM", "DK TT80 NOT EM",
+                    };
+                } else if (packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "DK TIKTOK90 NOT EM"
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "DK MF4IP NOT EM",
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "DK THAGA7 NOT EM",
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "DK THAGA15 NOT EM",
+                    };
+                }
                 int numberNewFail = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng gia hạn
-                listPackage = new String[]{
-                        "GH TT1", "GH TT7", "GH TT30", "GH TT80", "GH TIKTOK90", "GH MF4IP",
-                        "GHMK TIKTOK90", "GHMK MF4IP",
-                        "GHCD TIKTOK90", "GHCD MF4IP"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "GH TT1", "GH TT7", "GH TT30", "GH TT80"
+                    };
+                } else if (packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "GH TIKTOK90",
+                            "GHMK TIKTOK90",
+                            "GHCD TIKTOK90"
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "GH MF4IP",
+                            "GHMK MF4IP",
+                            "GHCD MF4IP"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "GH THAGA7",
+                            "GHMK THAGA7",
+                            "GHCD THAGA7"
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "GH THAGA15",
+                            "GHMK THAGA15",
+                            "GHCD THAGA15"
+                    };
+                }
                 int numberMore = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy
-                listPackage = new String[]{
-                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90", "HTHUY MF4IP",
-                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90", "HUY MF4IP",
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80",
+                            "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80"
+                    };
+                } else if (packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "HTHUY TIKTOK90",
+                            "HUY TIKTOK90"
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "HTHUY MF4IP",
+                            "HUY MF4IP"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "HTHUY THAGA7",
+                            "HUY THAGA7"
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "HTHUY THAGA15",
+                            "HUY THAGA15"
+                    };
+                }
                 int numberCancel = countCancel(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do người dùng hủy
-                listPackage = new String[]{
-                        "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80", "HUY TIKTOK90", "HUY MF4IP"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "HUY TT1", "HUY TT7", "HUY TT30", "HUY TT80"
+                    };
+                } else if (packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "HUY TIKTOK90"
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "HUY MF4IP"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "HUY THAGA7"
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "HUY THAGA15"
+                    };
+                }
                 int numberCancelUser = countCancel(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do hệ thống hủy
-                listPackage = new String[]{
-                        "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80", "HTHUY TIKTOK90", "HTHUY MF4IP",
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "HTHUY TT1", "HTHUY TT7", "HTHUY TT30", "HTHUY TT80",
+                    };
+                } else if (packageFilter.equals("TIKTOK90")) {
+                    listPackage = new String[]{
+                            "HTHUY TIKTOK90",
+                    };
+                } else if (packageFilter.equals("MF4IP")) {
+                    listPackage = new String[]{
+                            "HTHUY MF4IP",
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "HTHUY THAGA7",
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "HTHUY THAGA15",
+                    };
+                }
                 int numberCancelSystem = countCancel(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb phát sinh cước
                 listPackage = new String[]{};
-                if ( packageFilter == null ||
-                        packageFilter.equals("TT1") ||
-                        packageFilter.equals("TT7") ||
-                        packageFilter.equals("TT30") ||
-                        packageFilter.equals("TT80")
-                ) {
+                if (conditionPackage) {
                     listPackage = new String[]{
                             "DKLAI TT1", "DKLAI TT7", "DKLAI TT30", "DKLAI TT80",
                             "DK TT1", "DK TT7", "DK TT30", "DK TT80",
@@ -245,6 +401,22 @@ public class ScanTiktokNew extends Thread {
                             "GH MF4IP",
                             "GHMK MF4IP",
                             "GHCD MF4IP"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "DKLAI THAGA7",
+                            "DK THAGA7",
+                            "GH THAGA7",
+                            "GHMK THAGA7",
+                            "GHCD THAGA7"
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "DKLAI THAGA15",
+                            "DK THAGA15",
+                            "GH THAGA15",
+                            "GHMK THAGA15",
+                            "GHCD THAGA15"
                     };
                 }
                 int numberPSC = countRegister(database, currentdate, listPackage, packageFilter);
@@ -272,12 +444,16 @@ public class ScanTiktokNew extends Thread {
                 insertData.put("registerNewSuccessTT80", numberNewTT80);
                 insertData.put("registerNewSuccessTIKTOK90", numberNewTIKTOK90);
                 insertData.put("registerNewSuccessMF4IP", numberNewMF4IP);
+                insertData.put("registerNewSuccessTHAGA7", numberNewTHAGA7);
+                insertData.put("registerNewSuccessTHAGA15", numberNewTHAGA15);
                 insertData.put("registerNewAgainTT1", numberAgainTT1);
                 insertData.put("registerNewAgainTT7", numberAgainTT7);
                 insertData.put("registerNewAgainTT30", numberAgainTT30);
                 insertData.put("registerNewAgainTT80", numberAgainTT80);
                 insertData.put("registerNewAgainTIKTOK90", numberAgainTIKTOK90);
                 insertData.put("registerNewAgainMF4IP", numberAgainMF4IP);
+                insertData.put("registerNewAgainTHAGA7", numberAgainTHAGA7);
+                insertData.put("registerNewAgainTHAGA15", numberAgainTHAGA15);
                 insertData.put("registerNewFree", numberNewFree);
                 insertData.put("registerNewFalse", numberNewFail);
                 insertData.put("registerMore", numberMore);
@@ -420,6 +596,22 @@ public class ScanTiktokNew extends Thread {
                         "GH MF4IP",
                         "GHMK MF4IP",
                         "GHCD MF4IP"
+                };
+            } else if (packageFilter.equals("THAGA7")) {
+                listPackage = new String[]{
+                        "DKLAI THAGA7",
+                        "DK THAGA7",
+                        "GH THAGA7",
+                        "GHMK THAGA7",
+                        "GHCD THAGA7"
+                };
+            } else if (packageFilter.equals("THAGA15")) {
+                listPackage = new String[]{
+                        "DKLAI THAGA15",
+                        "DK THAGA15",
+                        "GH THAGA15",
+                        "GHMK THAGA15",
+                        "GHCD THAGA15"
                 };
             }
             BasicDBObject match = null;
