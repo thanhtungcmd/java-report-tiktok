@@ -29,6 +29,7 @@ public class ScanThvlNew extends Thread {
                 process("VL1", null,  null);
                 process("VL30", null,  null);
                 process("VL80", null,  null);
+                process("THAGA7", null,  null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -36,10 +37,11 @@ public class ScanThvlNew extends Thread {
     }
 
     public static void scan(DateTime fromDate, DateTime toDate) {
-        process(null, fromDate,  toDate);
-        process("VL1", fromDate,  toDate);
-        process("VL30", fromDate,  toDate);
-        process("VL80", fromDate,  toDate);
+//        process(null, fromDate,  toDate);
+//        process("VL1", fromDate,  toDate);
+//        process("VL30", fromDate,  toDate);
+//        process("VL80", fromDate,  toDate);
+        process("THAGA7", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -72,13 +74,27 @@ public class ScanThvlNew extends Thread {
                 currentdate = currentdate.minusDays(1)) {
                 System.out.println("THVL_" + packageFilter + "_" + currentdate.toString());
 
-                String[] listPackage;
+                String[] listPackage = null;
+                boolean conditionPackage = packageFilter == null ||
+                        packageFilter.equals("VL1") ||
+                        packageFilter.equals("VL30") ||
+                        packageFilter.equals("VL80");
+
                 // Tổng lượt đăng ký tất cả các gói
-                listPackage = new String[]{
-                        "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
-                        "DK VL1", "DK VL30", "DK VL80",
-                        "DK VL1 NOT EM", "DK VL30 NOT EM", "DK VL80 NOT EM"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
+                            "DK VL1", "DK VL30", "DK VL80",
+                            "DK VL1 NOT EM", "DK VL30 NOT EM", "DK VL80 NOT EM"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "DKLAI THAGA7",
+                            "DK THAGA7",
+                            "DKFREE THAGA7",
+                            "DK THAGA7 NOT EM",
+                    };
+                }
                 int numberNewAll = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng lượt đăng ký mới gói VL1
@@ -99,6 +115,12 @@ public class ScanThvlNew extends Thread {
                 };
                 int numberNewVL80 = countRegister(database, currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký mới gọi THAGA7
+                listPackage = new String[]{
+                        "DK THAGA7"
+                };
+                int numberNewTHAGA7 = countRegister(database, currentdate, listPackage, packageFilter);
+
                 // Tổng lượt đăng ký lại gói VL1
                 listPackage = new String[]{
                         "DKLAI VL1"
@@ -117,45 +139,94 @@ public class ScanThvlNew extends Thread {
                 };
                 int numberAgainVL80 = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng đăng ký thất bại
+                // Tổng lượt đăng ký lại gói THAGA7
                 listPackage = new String[]{
-                        "DK VL1 NOT EM", "DK VL30 NOT EM", "DK VL80 NOT EM"
+                        "DKLAI THAGA7"
                 };
+                int numberAgainTHAGA7 = countRegister(database, currentdate, listPackage, packageFilter);
+
+                // Tổng đăng ký thất bại
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "DK VL1 NOT EM", "DK VL30 NOT EM", "DK VL80 NOT EM"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "DK THAGA7 NOT EM",
+                    };
+                }
                 int numberNewFail = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng gia hạn
-                listPackage = new String[]{
-                        "GH VL1", "GH VL30", "GH VL80",
-                        "GHMK VL1", "GHMK VL30", "GHMK VL80"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "GH VL1", "GH VL30", "GH VL80",
+                            "GHMK VL1", "GHMK VL30", "GHMK VL80"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "GH THAGA7",
+                            "GHMK THAGA7",
+                            "GHCD THAGA7"
+                    };
+                }
                 int numberMore = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy
-                listPackage = new String[]{
-                        "HTHUY VL1", "HTHUY VL30", "HTHUY VL80",
-                        "HUY VL1", "HUY VL30", "HUY VL80"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "HTHUY VL1", "HTHUY VL30", "HTHUY VL80",
+                            "HUY VL1", "HUY VL30", "HUY VL80"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "HTHUY THAGA7",
+                            "HUY THAGA7"
+                    };
+                }
                 int numberCancel = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do người dùng hủy
-                listPackage = new String[]{
-                        "HUY VL1", "HUY VL80", "HUY VL80"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "HUY VL1", "HUY VL80", "HUY VL80"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "HUY THAGA7"
+                    };
+                }
                 int numberCancelUser = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do hệ thống hủy
-                listPackage = new String[]{
-                        "HTHUY VL1", "HTHUY VL30",  "HTHUY VL80"
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "HTHUY VL1", "HTHUY VL30", "HTHUY VL80"
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "HTHUY THAGA7",
+                    };
+                }
                 int numberCancelSystem = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb phát sinh cước
-                listPackage = new String[]{
-                        "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
-                        "DK VL1", "DK VL30", "DK VL80",
-                        "GH VL1", "GH VL30", "GH VL80",
-                        "GHMK VL1", "GHMK VL30", "GHMK VL80",
-                };
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
+                            "DK VL1", "DK VL30", "DK VL80",
+                            "GH VL1", "GH VL30", "GH VL80",
+                            "GHMK VL1", "GHMK VL30", "GHMK VL80",
+                    };
+                } else if (packageFilter.equals("THAGA7")) {
+                    listPackage = new String[]{
+                            "DKLAI THAGA7",
+                            "DK THAGA7",
+                            "GH THAGA7",
+                            "GHMK THAGA7",
+                            "GHCD THAGA7"
+                    };
+                }
                 int numberPSC = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng doanh thu
@@ -178,9 +249,11 @@ public class ScanThvlNew extends Thread {
                 insertData.put("registerNewSuccessVL1", numberNewVL1);
                 insertData.put("registerNewSuccessVL30", numberNewVL30);
                 insertData.put("registerNewSuccessVL80", numberNewVL80);
+                insertData.put("registerNewSuccessTHAGA7", numberNewTHAGA7);
                 insertData.put("registerNewAgainVL1", numberAgainVL1);
                 insertData.put("registerNewAgainVL30", numberAgainVL30);
                 insertData.put("registerNewAgainVL80", numberAgainVL80);
+                insertData.put("registerNewAgainTHAGA7", numberAgainTHAGA7);
                 insertData.put("registerNewFalse", numberNewFail);
                 insertData.put("registerMore", numberMore);
                 insertData.put("registerCancle", numberCancel);
@@ -234,13 +307,28 @@ public class ScanThvlNew extends Thread {
     private static int sumRevenue(MongoDatabase database, DateTime datetime, String packageFilter) {
         int output = 0;
         try {
+            String[] listPackage = null;
             MongoCollection<Document> collection = collectionDbDate(database, datetime);
-            String[] listPackage = new String[]{
-                    "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
-                    "DK VL1", "DK VL30", "DK VL80",
-                    "GH VL1", "GH VL30", "GH VL80",
-                    "GHMK VL1", "GHMK VL30", "GHMK VL80"
-            };
+            if ( packageFilter == null ||
+                    packageFilter.equals("VL1") ||
+                    packageFilter.equals("VL30") ||
+                    packageFilter.equals("VL80")
+            ) {
+                listPackage = new String[]{
+                        "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
+                        "DK VL1", "DK VL30", "DK VL80",
+                        "GH VL1", "GH VL30", "GH VL80",
+                        "GHMK VL1", "GHMK VL30", "GHMK VL80"
+                };
+            } else if (packageFilter.equals("THAGA7")) {
+                listPackage = new String[]{
+                        "DKLAI THAGA7",
+                        "DK THAGA7",
+                        "GH THAGA7",
+                        "GHMK THAGA7",
+                        "GHCD THAGA7"
+                };
+            }
             BasicDBObject match = null;
             if (packageFilter == null) {
                 match = new BasicDBObject("$match",
@@ -288,9 +376,10 @@ public class ScanThvlNew extends Thread {
         int output = 0;
         try {
             MongoCollection<Document> collection = collectionDbDate(database, datetime);
+
             String[] listPackage = new String[]{
-                    "HTHUY VL1", "HTHUY VL30",
-                    "HUY VL1", "HUY VL30",
+                    "HTHUY VL1", "HTHUY VL30", "HTHUY THAGA7",
+                    "HUY VL1", "HUY VL30", "HUY THAGA7"
             };
             BasicDBObject searchQuery = new BasicDBObject();
             searchQuery.put("commandCode",
@@ -322,7 +411,7 @@ public class ScanThvlNew extends Thread {
             // Lấy danh sách số đã đăng ký
             MongoCollection<Document> collectionCancel = collectionDbDate(database, datetime);
             String[] listPackage = new String[]{
-                    "DK VL1", "DK VL30", "DK VL80",
+                    "DK VL1", "DK VL30", "DK VL80", "DK THAGA7"
             };
             BasicDBObject match = null;
             if (packageFilter == null) {
