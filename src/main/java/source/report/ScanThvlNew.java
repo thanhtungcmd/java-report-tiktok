@@ -46,7 +46,7 @@ public class ScanThvlNew extends Thread {
 
     private void sleepTime() {
         try {
-            for(int i = 0; i < 360; i++) {
+            for(int i = 0; i < 30; i++) {
                 if(Menu.isRunning) {
                     Thread.sleep(10000);
                 } else {
