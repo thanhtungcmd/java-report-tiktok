@@ -1,16 +1,22 @@
-package source.report;
+package source.dataip;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.*;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import source.helper.ConnectDb;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.joda.time.DateTime;
+import source.helper.ConnectDb;
+import source.report.Menu;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Scan extends Thread {
+public class ScanThvl extends Thread {
+
+    private static final String MONGO_DATABASE = "thvl_new";
 
     @Override
     public void run() {
@@ -18,10 +24,9 @@ public class Scan extends Thread {
             try {
                 sleepTime();
                 process(null, null,  null);
-                process("SF1", null,  null);
-                process("SF7", null,  null);
-                process("SF30", null,  null);
-                process("SF80", null,  null);
+                process("VL1", null,  null);
+                process("VL30", null,  null);
+                process("VL80", null,  null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -30,10 +35,9 @@ public class Scan extends Thread {
 
     public static void scan(DateTime fromDate, DateTime toDate) {
         process(null, fromDate,  toDate);
-        process("SF1", fromDate,  toDate);
-        process("SF7", fromDate,  toDate);
-        process("SF30", fromDate,  toDate);
-        process("SF80", fromDate,  toDate);
+        process("VL1", fromDate,  toDate);
+        process("VL30", fromDate,  toDate);
+        process("VL80", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -52,115 +56,101 @@ public class Scan extends Thread {
         MongoClient conn = null;
         try {
             conn = ConnectDb.createConnection();
-            MongoDatabase database = conn.getDatabase(ConnectDb.MONGO_DATABASE);
-            toDate = (toDate == null) ? new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay() : toDate;
-            fromDate = (fromDate == null) ? toDate.minusDays(2) : fromDate;
+            MongoDatabase database = conn.getDatabase(MONGO_DATABASE);
+//            toDate = (toDate == null) ? new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay() : toDate;
+//            fromDate = (fromDate == null) ? toDate.minusDays(2) : fromDate;
+
+            fromDate = new DateTime(2020, 6, 8, 00, 0);
+            toDate = new DateTime(2020, 6, 8, 00, 0);
 
             for(DateTime currentdate = toDate;
                 currentdate.isAfter(fromDate) || currentdate.isEqual(fromDate);
                 currentdate = currentdate.minusDays(1)) {
-                System.out.println("SPOTIFY_" + packageFilter + "_" + currentdate.toString());
+                System.out.println("THVL_" + packageFilter + "_" + currentdate.toString());
 
                 String[] listPackage;
                 // Tổng lượt đăng ký tất cả các gói
                 listPackage = new String[]{
-                        "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
-                        "DK SF1", "DK SF7", "DK SF30", "DK SF80",
-                        "DKFREE SF1", "DKFREE SF7", "DKFREE SF30", "DKFREE SF80",
-                        "DK SF1 NOT EM", "DK SF7 NOT EM", "DK SF30 NOT EM", "DK SF80 NOT EM"
+                        "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
+                        "DK VL1", "DK VL30", "DK VL80",
+                        "DK VL1 NOT EM", "DK VL30 NOT EM", "DK VL80 NOT EM"
                 };
                 int numberNewAll = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng lượt đăng ký mới gói SF1
+                // Tổng lượt đăng ký mới gói VL1
                 listPackage = new String[]{
-                        "DK SF1"
+                        "DK VL1"
                 };
-                int numberNewSF1 = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberNewVL1 = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng lượt đăng ký mới gói SF7
+                // Tổng lượt đăng ký mới gói VL30
                 listPackage = new String[]{
-                        "DK SF7"
+                        "DK VL30"
                 };
-                int numberNewSF7 = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberNewVL30 = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng lượt đăng ký mới gói SF30
+                // Tổng lượt đăng ký mới gói VL80
                 listPackage = new String[]{
-                        "DK SF30"
+                        "DK VL80"
                 };
-                int numberNewSF30 = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberNewVL80 = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng lượt đăng ký mới gói SF80
+                // Tổng lượt đăng ký lại gói VL1
                 listPackage = new String[]{
-                        "DK SF80"
+                        "DKLAI VL1"
                 };
-                int numberNewSF80 = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberAgainVL1 = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng lượt đăng ký lại gói SF1
+                // Tổng lượt đăng ký lại gói VL30
                 listPackage = new String[]{
-                        "DKLAI SF1"
+                        "DKLAI VL30"
                 };
-                int numberAgainSF1 = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberAgainVL30 = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng lượt đăng ký lại gói SF7
+                // Tổng lượt đăng ký lại gói VL80
                 listPackage = new String[]{
-                        "DKLAI SF7"
+                        "DKLAI VL80"
                 };
-                int numberAgainSF7 = countRegister(database, currentdate, listPackage, packageFilter);
+                int numberAgainVL80 = countRegister(database, currentdate, listPackage, packageFilter);
 
-                // Tổng lượt đăng ký lại gói SF30
+                // Tổng đăng ký thất bại
                 listPackage = new String[]{
-                        "DKLAI SF30"
-                };
-                int numberAgainSF30 = countRegister(database, currentdate, listPackage, packageFilter);
-
-                // Tổng lượt đăng ký lại gói SF80
-                listPackage = new String[]{
-                        "DKLAI SF80"
-                };
-                int numberAgainSF80 = countRegister(database, currentdate, listPackage, packageFilter);
-
-                // Tổng đăng ký miễn phí
-                listPackage = new String[]{
-                        "DKFREE SF1", "DKFREE SF7", "DKFREE SF30", "DKFREE SF80",
-                };
-                int numberNewFree = countRegister(database, currentdate, listPackage, packageFilter);
-
-                // Tổng đăng ký miễn phí
-                listPackage = new String[]{
-                        "DK SF1 NOT EM", "DK SF7 NOT EM", "DK SF30 NOT EM", "DK SF80 NOT EM"
+                        "DK VL1 NOT EM", "DK VL30 NOT EM", "DK VL80 NOT EM"
                 };
                 int numberNewFail = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng gia hạn
                 listPackage = new String[]{
-                        "GH SF1", "GH SF7", "GH SF30", "GH SF80"
+                        "GH VL1", "GH VL30", "GH VL80",
+                        "GHMK VL1", "GHMK VL30", "GHMK VL80"
                 };
                 int numberMore = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy
                 listPackage = new String[]{
-                        "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80",
-                        "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80"
+                        "HTHUY VL1", "HTHUY VL30", "HTHUY VL80",
+                        "HUY VL1", "HUY VL30", "HUY VL80"
                 };
                 int numberCancel = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do người dùng hủy
                 listPackage = new String[]{
-                        "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80"
+                        "HUY VL1", "HUY VL80", "HUY VL80"
                 };
                 int numberCancelUser = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do hệ thống hủy
                 listPackage = new String[]{
-                        "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80",
+                        "HTHUY VL1", "HTHUY VL30",  "HTHUY VL80"
                 };
                 int numberCancelSystem = countRegister(database, currentdate, listPackage, packageFilter);
 
                 // Tổng tb phát sinh cước
                 listPackage = new String[]{
-                        "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
-                        "DK SF1", "DK SF7", "DK SF30", "DK SF80",
-                        "GH SF1", "GH SF7", "GH SF30", "GH SF80"
+                        "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
+                        "DK VL1", "DK VL30", "DK VL80",
+                        "GH VL1", "GH VL30", "GH VL80",
+                        "GHMK VL1", "GHMK VL30", "GHMK VL80",
                 };
                 int numberPSC = countRegister(database, currentdate, listPackage, packageFilter);
 
@@ -170,23 +160,23 @@ public class Scan extends Thread {
                 // Tổng thuê bao đăng ký hủy trong ngày
                 int numberInday = countInday(database, currentdate, packageFilter);
 
+                // Tổng thuê bao đăng ký trong 30 ngày
+                int number30Day = countRepeat30Day(database, currentdate, packageFilter);
+
                 // Insert Db
-                MongoCollection<Document> collection = database.getCollection("report_spotify");
+                MongoCollection<Document> collection = database.getCollection("report");
                 BasicDBObject searchQuery = new BasicDBObject();
                 searchQuery.put("datetime", new Timestamp(currentdate.getMillis()));
                 searchQuery.put("package", packageFilter);
                 Document data = collection.find(searchQuery).first();
                 Document insertData = new Document();
                 insertData.put("datetime", new Timestamp(currentdate.getMillis()));
-                insertData.put("registerNewSuccessTT1", numberNewSF1);
-                insertData.put("registerNewSuccessTT7", numberNewSF7);
-                insertData.put("registerNewSuccessTT30", numberNewSF30);
-                insertData.put("registerNewSuccessTT80", numberNewSF80);
-                insertData.put("registerNewAgainTT1", numberAgainSF1);
-                insertData.put("registerNewAgainTT7", numberAgainSF7);
-                insertData.put("registerNewAgainTT30", numberAgainSF30);
-                insertData.put("registerNewAgainTT80", numberAgainSF80);
-                insertData.put("registerNewFree", numberNewFree);
+                insertData.put("registerNewSuccessVL1", numberNewVL1);
+                insertData.put("registerNewSuccessVL30", numberNewVL30);
+                insertData.put("registerNewSuccessVL80", numberNewVL80);
+                insertData.put("registerNewAgainVL1", numberAgainVL1);
+                insertData.put("registerNewAgainVL30", numberAgainVL30);
+                insertData.put("registerNewAgainVL80", numberAgainVL80);
                 insertData.put("registerNewFalse", numberNewFail);
                 insertData.put("registerMore", numberMore);
                 insertData.put("registerCancle", numberCancel);
@@ -196,6 +186,7 @@ public class Scan extends Thread {
                 insertData.put("registerRevenue", numberRevenue);
                 insertData.put("registerInDay", numberInday);
                 insertData.put("registerLogAll", numberNewAll);
+                insertData.put("register30Day", number30Day);
                 if (packageFilter != null) {
                     insertData.put("package", packageFilter);
                 }
@@ -241,9 +232,10 @@ public class Scan extends Thread {
         try {
             MongoCollection<Document> collection = database.getCollection("register");
             String[] listPackage = new String[]{
-                    "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
-                    "DK SF1", "DK SF7", "DK SF30", "DK SF80",
-                    "GH SF1", "GH SF7", "GH SF30", "GH SF80"
+                    "DKLAI VL1", "DKLAI VL30", "DKLAI VL80",
+                    "DK VL1", "DK VL30", "DK VL80",
+                    "GH VL1", "GH VL30", "GH VL80",
+                    "GHMK VL1", "GHMK VL30", "GHMK VL80"
             };
             BasicDBObject match = null;
             if (packageFilter == null) {
@@ -293,8 +285,8 @@ public class Scan extends Thread {
         try {
             MongoCollection<Document> collection = database.getCollection("register");
             String[] listPackage = new String[]{
-                    "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80",
-                    "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80"
+                    "HTHUY VL1", "HTHUY VL30",
+                    "HUY VL1", "HUY VL30",
             };
             BasicDBObject searchQuery = new BasicDBObject();
             searchQuery.put("commandCode",
@@ -312,6 +304,78 @@ public class Scan extends Thread {
                 searchQuery.put("packageCode", packageFilter);
             }
             output = (int) collection.count(searchQuery);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
+    }
+
+    private static int countRepeat30Day(MongoDatabase database, DateTime datetime, String packageFilter) {
+        int output = 0;
+        DateTime cloneTime = datetime;
+        DateTime cloneTime2 = datetime;
+        try {
+            // Lấy danh sách số đã đăng ký
+            MongoCollection<Document> collectionCancel = database.getCollection("register");
+            String[] listPackage = new String[]{
+                    "DK VL1", "DK VL30", "DK VL80",
+            };
+            BasicDBObject match = null;
+            if (packageFilter == null) {
+                match = new BasicDBObject("$match",
+                        new BasicDBObject("groupcode", "THVL-DATA"
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$lte", (datetime.plusDays(1).getMillis() / 1000))
+                                        .append("$gte", (datetime.minusDays(30).getMillis() / 1000))
+                        ).append("status", "3")
+                );
+            } else {
+                match = new BasicDBObject("$match",
+                        new BasicDBObject("groupcode", "THVL-DATA"
+                        ).append("regDatetimeT",
+                                new BasicDBObject("$lte", (datetime.plusDays(1).getMillis() / 1000))
+                                        .append("$gte", (datetime.minusDays(30).getMillis() / 1000))
+                        ).append("packageCode", packageFilter)
+                                .append("status", "3")
+                );
+            }
+            AggregateIterable<Document> searchQuery = collectionCancel.aggregate(Arrays.asList(
+                    match,
+                    new BasicDBObject("$group",
+                            new BasicDBObject("_id",
+                                    new BasicDBObject("msisdn", "$msisdn")
+                            )
+                    )
+            ));
+
+            ArrayList<String> listRegister = new ArrayList<String>();
+            for (Document dbObject : searchQuery)
+            {
+                Document msisdnDoc = (Document) dbObject.get("_id");
+                String msisdn = (String) msisdnDoc.get("msisdn");
+                if (msisdn != null) {
+                    listRegister.add(msisdn);
+                }
+            }
+
+            // Lấy danh sách
+            MongoCollection<Document> collection = database.getCollection("register");
+            BasicDBObject searchQueryData = new BasicDBObject();
+            searchQueryData.put("commandCode",
+                    new BasicDBObject("$in", listPackage)
+            );
+            searchQueryData.put("regDatetimeT",
+                    new BasicDBObject("$gte", (datetime.getMillis() / 1000))
+                            .append("$lt", (datetime.plusDays(1).getMillis() / 1000))
+            );
+            searchQueryData.put("msisdn",
+                    new BasicDBObject("$nin", listRegister)
+            );
+            if (packageFilter != null) {
+                searchQueryData.put("packageCode", packageFilter);
+            }
+            output = (int) collection.count(searchQueryData);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

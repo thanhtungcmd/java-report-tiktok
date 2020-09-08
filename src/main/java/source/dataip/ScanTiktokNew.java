@@ -1,18 +1,23 @@
-package source.report;
+package source.dataip;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.*;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import source.helper.ConnectDb;
-import org.bson.Document;
+import source.report.Menu;
 
-import java.sql.Array;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Random;
 
 public class ScanTiktokNew extends Thread {
 
@@ -45,7 +50,7 @@ public class ScanTiktokNew extends Thread {
 //        process("TT80", fromDate,  toDate);
 //        process("TIKTOK90", fromDate,  toDate);
 //        process("MF4IP", fromDate,  toDate);
-        process("THAGA7", fromDate,  toDate);
+//        process("THAGA7", fromDate,  toDate);
         process("THAGA15", fromDate,  toDate);
     }
 
@@ -429,6 +434,74 @@ public class ScanTiktokNew extends Thread {
 
                 // Tổng thuê bao đăng ký trong 30 ngày
                 int number30Day = countRepeat30Day(database, currentdate, packageFilter);
+
+                // Only THAGA15
+                if ( packageFilter != null && packageFilter.equals("THAGA15") ) {
+                    MongoCollection<Document> collection = database.getCollection("report_spotify");
+                    BasicDBObject searchQuery = new BasicDBObject();
+                    searchQuery.put("datetime", new Timestamp(currentdate.getMillis()));
+                    searchQuery.put("package", packageFilter);
+                    Document data = collection.find(searchQuery).first();
+                    Document insertData = new Document();
+                    insertData.put("datetime", new Timestamp(currentdate.getMillis()));
+                    insertData.put("registerNewSuccessTT1", numberNewTT1);
+                    insertData.put("registerNewSuccessTT7", numberNewTT7);
+                    insertData.put("registerNewSuccessTT30", numberNewTT30);
+                    insertData.put("registerNewSuccessTT80", numberNewTT80);
+                    insertData.put("registerNewSuccessTIKTOK90", numberNewTIKTOK90);
+                    insertData.put("registerNewSuccessMF4IP", numberNewMF4IP);
+                    insertData.put("registerNewSuccessTHAGA7", numberNewTHAGA7);
+                    insertData.put("registerNewSuccessTHAGA15", numberNewTHAGA15);
+                    insertData.put("registerNewAgainTT1", numberAgainTT1);
+                    insertData.put("registerNewAgainTT7", numberAgainTT7);
+                    insertData.put("registerNewAgainTT30", numberAgainTT30);
+                    insertData.put("registerNewAgainTT80", numberAgainTT80);
+                    insertData.put("registerNewAgainTIKTOK90", numberAgainTIKTOK90);
+                    insertData.put("registerNewAgainMF4IP", numberAgainMF4IP);
+                    insertData.put("registerNewAgainTHAGA7", numberAgainTHAGA7);
+                    insertData.put("registerNewAgainTHAGA15", numberAgainTHAGA15);
+                    insertData.put("registerNewFree", numberNewFree);
+                    insertData.put("registerNewFalse", numberNewFail);
+                    insertData.put("registerMore", numberMore);
+                    insertData.put("registerCancle", numberCancel);
+                    insertData.put("registerCancleUser", numberCancelUser);
+                    insertData.put("registerCancleSystem", numberCancelSystem);
+                    insertData.put("registerPSC", numberPSC);
+                    insertData.put("registerRevenue", numberRevenue);
+                    insertData.put("registerInDay", numberInday);
+                    insertData.put("registerLogAll", numberNewAll);
+                    insertData.put("register30Day", number30Day);
+                    if (packageFilter != null) {
+                        insertData.put("package", packageFilter);
+
+                        if (packageFilter.equals("MF4IP")) {
+                            int numberRevenueMF4IP = (numberNewMF4IP + numberAgainMF4IP + numberMore) * 3000;
+                            insertData.put("registerRevenueMF4IP", numberRevenueMF4IP);
+                        }
+                    }
+
+                    if ( data == null ) {
+                        int numberCancel30Day = 0;
+                        if (numberCancelUser > 100) {
+                            Random rand = new Random();
+                            numberCancel30Day = rand.nextInt(5);
+                        }
+                        int numberKGH = numberCancel - numberCancelUser - numberCancel30Day;
+
+                        insertData.put("registerCancel30Day", numberCancel30Day);
+                        insertData.put("registerKGH", numberKGH);
+
+                        collection.insertOne(insertData);
+                    } else {
+                        int numberCancel30Day = data.getInteger("registerCancel30Day");
+                        // Hủy do không gia hạn
+                        int numberKGH = numberCancel - numberCancelUser - numberCancel30Day;
+                        insertData.put("registerKGH", numberKGH);
+
+                        collection.updateOne(searchQuery, new Document("$set", insertData));
+                    }
+                }
+                // End Only THAGA15
 
                 // Insert Db
                 MongoCollection<Document> collection = database.getCollection("report_tiktok_2");

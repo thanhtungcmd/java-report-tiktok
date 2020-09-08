@@ -1,4 +1,4 @@
-package source.report;
+package source.dataip;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.AggregateIterable;
@@ -11,6 +11,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import source.helper.ConnectDb;
+import source.report.Menu;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -37,10 +38,10 @@ public class ScanThvlNew extends Thread {
     }
 
     public static void scan(DateTime fromDate, DateTime toDate) {
-//        process(null, fromDate,  toDate);
-//        process("VL1", fromDate,  toDate);
-//        process("VL30", fromDate,  toDate);
-//        process("VL80", fromDate,  toDate);
+        process(null, fromDate,  toDate);
+        process("VL1", fromDate,  toDate);
+        process("VL30", fromDate,  toDate);
+        process("VL80", fromDate,  toDate);
         process("THAGA7", fromDate,  toDate);
     }
 
@@ -378,7 +379,7 @@ public class ScanThvlNew extends Thread {
             MongoCollection<Document> collection = collectionDbDate(database, datetime);
 
             String[] listPackage = new String[]{
-                    "HTHUY VL1", "HTHUY VL30", "HTHUY THAGA7",
+                    //"HTHUY VL1", "HTHUY VL30", "HTHUY THAGA7",
                     "HUY VL1", "HUY VL30", "HUY THAGA7"
             };
             BasicDBObject searchQuery = new BasicDBObject();
