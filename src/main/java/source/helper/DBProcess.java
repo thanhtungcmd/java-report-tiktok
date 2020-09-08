@@ -8,8 +8,8 @@ import java.sql.Statement;
 //import java.sql.Timestamp;
 
 public class DBProcess {
-//    public static String DB_URL = "jdbc:oracle:thin:@192.168.10.221:1521:DITECH";
-    public static String DB_URL = "jdbc:oracle:thin:@localhost:1521:DATAIP";
+    public static String DB_URL = "jdbc:oracle:thin:@192.168.10.221:1521:DITECH";
+    //public static String DB_URL = "jdbc:oracle:thin:@localhost:1521:DATAIP";
     public static String DB_DRIVER = "oracle.jdbc.driver.OracleDriver";
 
     public static Connection getConnection(String user, String pass) {

@@ -26,11 +26,12 @@ public class ScanTiktok extends Thread {
 
     @Override
     public void run() {
-//        conn = DBProcess.getConnection("vascms", "vascms");
-        conn = DBProcess.getConnection("tiktok", "dataip082020");
+        conn = DBProcess.getConnection("vascms", "vascms");
+        //conn = DBProcess.getConnection("tiktok", "dataip082020");
 
         while (Menu.isRunning) {
             try {
+                sleepTime();
                 process(null, null,  null);
                 process("TT1", null,  null);
                 process("TT7", null,  null);
@@ -40,7 +41,6 @@ public class ScanTiktok extends Thread {
                 process("MF4IP", null,  null);
                 process("THAGA7", null,  null);
                 process("THAGA15", null,  null);
-                sleepTime();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -63,7 +63,7 @@ public class ScanTiktok extends Thread {
 
     private void sleepTime() {
         try {
-            for(int i = 0; i < 30; i++) {
+            for(int i = 0; i < 300; i++) {
                 if(Menu.isRunning) {
                     Thread.sleep(10000);
                 } else {
@@ -575,6 +575,8 @@ public class ScanTiktok extends Thread {
                     ps = conn.prepareStatement(sql);
                     ps.execute();
                 }
+
+                DBProcess.closeConnection(null, ps, rs);
             }
 
         } catch (Exception e) {
@@ -664,7 +666,12 @@ public class ScanTiktok extends Thread {
 
             // partition
             DateTimeFormatter partitionFmt = DateTimeFormat.forPattern("yyyyMM");
-            valuesMap.put("partition", datetime.toString(partitionFmt));
+            DateTime dateApply = new DateTime(2020, 8, 1, 0, 0);
+            if (datetime.getMillis() < dateApply.getMillis()) {
+                valuesMap.put("partition", "202008");
+            } else {
+                valuesMap.put("partition", datetime.toString(partitionFmt));
+            }
 
             // datetime
             DateTimeFormatter createFmt = DateTimeFormat.forPattern("yyyyMMdd");
@@ -771,7 +778,12 @@ public class ScanTiktok extends Thread {
 
             // partition
             DateTimeFormatter partitionFmt = DateTimeFormat.forPattern("yyyyMM");
-            valuesMap.put("partition", datetime.toString(partitionFmt));
+            DateTime dateApply = new DateTime(2020, 8, 1, 0, 0);
+            if (datetime.getMillis() < dateApply.getMillis()) {
+                valuesMap.put("partition", "202008");
+            } else {
+                valuesMap.put("partition", datetime.toString(partitionFmt));
+            }
 
             // datetime
             DateTimeFormatter createFmt = DateTimeFormat.forPattern("yyyyMMdd");
@@ -839,7 +851,12 @@ public class ScanTiktok extends Thread {
 
             // partition
             DateTimeFormatter partitionFmt = DateTimeFormat.forPattern("yyyyMM");
-            valuesMap.put("partition", datetime.toString(partitionFmt));
+            DateTime dateApply = new DateTime(2020, 8, 1, 0, 0);
+            if (datetime.getMillis() < dateApply.getMillis()) {
+                valuesMap.put("partition", "202008");
+            } else {
+                valuesMap.put("partition", datetime.toString(partitionFmt));
+            }
 
             // datetime
             DateTimeFormatter createFmt = DateTimeFormat.forPattern("yyyyMMdd");
