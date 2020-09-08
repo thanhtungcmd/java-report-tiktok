@@ -11,7 +11,6 @@ public class Menu extends Thread {
     public static boolean isRunning = true;
     private static final BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 
-
     public Menu() {
         try {
             // Scan Tiktok

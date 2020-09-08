@@ -510,7 +510,7 @@ public class ScanTiktok extends Thread {
                         "SUCCESS_MF4IP = ${SUCCESS_MF4IP}," +
                         "SUCCESS_THAGA7 = ${SUCCESS_THAGA7}," +
                         "SUCCESS_THAGA15 = ${SUCCESS_THAGA15}," +
-                        "AGAIN_MF4IP = ${AGAIN_MF4IP}," +
+                        "AGAIN_TT1 = ${AGAIN_TT1}," +
                         "AGAIN_TT7 = ${AGAIN_TT7}," +
                         "AGAIN_TT30 = ${AGAIN_TT30}," +
                         "AGAIN_TT80 = ${AGAIN_TT80}," +
