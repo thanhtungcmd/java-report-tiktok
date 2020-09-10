@@ -22,8 +22,8 @@ public class ScanThvl extends Thread {
 
     @Override
     public void run() {
-        conn = DBProcess.getConnection("vascms", "vascms");
-        //conn = DBProcess.getConnection("tiktok", "dataip082020");
+        //conn = DBProcess.getConnection("vascms", "vascms");
+        conn = DBProcess.getConnection("thvl", "dataip082020");
 
         while (Menu.isRunning) {
             try {
@@ -42,11 +42,11 @@ public class ScanThvl extends Thread {
     }
 
     public static void scan(DateTime fromDate, DateTime toDate) {
-        process(null, null,  null);
-        process("VL1", null,  null);
-        process("VL30", null,  null);
-        process("VL80", null,  null);
-        process("THAGA7", null,  null);
+        process(null, fromDate,  toDate);
+        process("VL1", fromDate,  toDate);
+        process("VL30", fromDate,  toDate);
+        process("VL80", fromDate,  toDate);
+        process("THAGA7", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -291,7 +291,7 @@ public class ScanThvl extends Thread {
                     ps.execute();
                 } else {
 
-                    String sql = "UPDATE REPORT_SPOTIFY " +
+                    String sql = "UPDATE REPORT_THVL " +
                             "SET SUCCESS_VL1 = ${SUCCESS_VL1}," +
                             "SUCCESS_VL30 = ${SUCCESS_VL30}," +
                             "SUCCESS_VL80 = ${SUCCESS_VL80}," +

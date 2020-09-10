@@ -16,6 +16,9 @@ public class Menu extends Thread {
             // Scan Tiktok
             ScanTiktok scanTiktok = new ScanTiktok();
             scanTiktok.start();
+
+            ScanSpotify scanSpotify = new ScanSpotify();
+            scanSpotify.start();
             System.out.println("Scan started!!!");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -33,6 +36,7 @@ public class Menu extends Thread {
             System.out.println();
             System.out.println("- Chon dich vu data ip ");
             System.out.println("- 1: Tiktok");
+            System.out.println("- 2: Spotify");
             System.out.print("> ");
 
             try {
@@ -46,6 +50,9 @@ public class Menu extends Thread {
 
                 if (scan == 1) {
                     executeTiktok();
+                }
+                if (scan == 2) {
+                    executeSpotify();
                 }
             }
 
@@ -86,6 +93,46 @@ public class Menu extends Thread {
                 int day = Integer.parseInt(split[2]);
                 DateTime fromDate = new DateTime(year, month, day, 0, 0);
                 ScanTiktok.scan(fromDate, fromDate);
+            } catch (Exception ignore) {}
+        } else if (option != null && "Q".equals(option.toUpperCase()) ) {
+            exitMenu();
+        }
+    }
+
+    public void executeSpotify() {
+        String option = null;
+        System.out.println();
+        System.out.println("- scan <day>");
+        System.out.println("- yyyy mm dd");
+        System.out.println("- Q Quit");
+        System.out.print("> ");
+
+        try {
+            option = keyboard.readLine();
+        } catch (Exception e) {
+            System.out.println("exception reading keyboard " + e);
+        }
+
+        if ( option != null && option.startsWith("scan") ) {
+            String[] split = option.split(" ");
+            int scan = Integer.parseInt(split[1]);
+            try {
+                if (scan > 300) {
+                    scan = 300;
+                }
+                DateTime toDate = new DateTime(DateTimeZone.getDefault()).withTimeAtStartOfDay();
+                DateTime fromDate = toDate.minusDays(scan);
+
+                ScanSpotify.scan(fromDate, toDate);
+            } catch (Exception ignored) {}
+        } else if (option != null && option.length() == 10) {
+            try {
+                String[] split = option.split(" ");
+                int year = Integer.parseInt(split[0]);
+                int month = Integer.parseInt(split[1]);
+                int day = Integer.parseInt(split[2]);
+                DateTime fromDate = new DateTime(year, month, day, 0, 0);
+                ScanSpotify.scan(fromDate, fromDate);
             } catch (Exception ignore) {}
         } else if (option != null && "Q".equals(option.toUpperCase()) ) {
             exitMenu();

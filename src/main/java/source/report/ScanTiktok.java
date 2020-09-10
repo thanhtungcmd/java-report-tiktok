@@ -26,8 +26,8 @@ public class ScanTiktok extends Thread {
 
     @Override
     public void run() {
-        conn = DBProcess.getConnection("vascms", "vascms");
-        //conn = DBProcess.getConnection("tiktok", "dataip082020");
+        //conn = DBProcess.getConnection("vascms", "vascms");
+        conn = DBProcess.getConnection("tiktok", "dataip082020");
 
         while (Menu.isRunning) {
             try {
@@ -515,6 +515,7 @@ public class ScanTiktok extends Thread {
                         "AGAIN_TT30 = ${AGAIN_TT30}," +
                         "AGAIN_TT80 = ${AGAIN_TT80}," +
                         "AGAIN_TIKTOK90 = ${AGAIN_TIKTOK90}," +
+                        "AGAIN_MF4IP = ${AGAIN_MF4IP}," +
                         "AGAIN_THAGA7 = ${AGAIN_THAGA7}," +
                         "AGAIN_THAGA15 = ${AGAIN_THAGA15}," +
                         "NEW_FREE = ${NEW_FREE}," +

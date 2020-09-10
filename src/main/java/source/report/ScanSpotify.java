@@ -22,8 +22,8 @@ public class ScanSpotify extends Thread {
 
     @Override
     public void run() {
-        conn = DBProcess.getConnection("vascms", "vascms");
-        //conn = DBProcess.getConnection("tiktok", "dataip082020");
+        //conn = DBProcess.getConnection("vascms", "vascms");
+        conn = DBProcess.getConnection("tiktok", "dataip082020");
 
         while (Menu.isRunning) {
             try {
@@ -51,7 +51,7 @@ public class ScanSpotify extends Thread {
 
     private void sleepTime() {
         try {
-            for(int i = 0; i < 30; i++) {
+            for(int i = 0; i < 300; i++) {
                 if(Menu.isRunning) {
                     Thread.sleep(10000);
                 } else {
@@ -431,8 +431,7 @@ public class ScanSpotify extends Thread {
             listPackage = new String[]{
                     "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
                     "DK SF1", "DK SF7", "DK SF30", "DK SF80",
-                    "DKFREE SF1", "DKFREE SF7", "DKFREE SF30", "DKFREE SF80",
-                    "DK SF1 NOT EM", "DK SF7 NOT EM", "DK SF30 NOT EM", "DK SF80 NOT EM"
+                    "GH SF1", "GH SF7", "GH SF30", "GH SF80"
             };
 
             // SQL
