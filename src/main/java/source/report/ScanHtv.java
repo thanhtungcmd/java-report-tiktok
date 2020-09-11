@@ -154,7 +154,7 @@ public class ScanHtv extends Thread {
 
                 if (!checkExist) {
                     // Save to DB
-                    String sql = "insert into REPORT_SPOTIFY " +
+                    String sql = "insert into REPORT_HTV " +
                             "(PACKAGE_CODE, CREATE_AT, SUCCESS_HTV1, SUCCESS_HTV150, " +
                             "AGAIN_HTV1, AGAIN_HTV150, " +
                             "NEW_FAILE, MORE, CANCEL_ALL, CANCEL_USER, " +

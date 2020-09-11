@@ -17,7 +17,7 @@ public class ScanSpotify extends Thread {
 
     private static Connection conn = null;
     private static String[] LIST_PACKAGE = new String[]{
-            "SF1","SF7","SF30","SF80",
+            "SF1","SF7","SF30","SF80","THAGA15"
     };
 
     @Override
@@ -33,6 +33,7 @@ public class ScanSpotify extends Thread {
                 process("SF7", null,  null);
                 process("SF30", null,  null);
                 process("SF80", null,  null);
+                process("THAGA15", null,  null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -42,11 +43,12 @@ public class ScanSpotify extends Thread {
     }
 
     public static void scan(DateTime fromDate, DateTime toDate) {
-        process(null, fromDate,  toDate);
-        process("SF1", fromDate,  toDate);
-        process("SF7", fromDate,  toDate);
-        process("SF30", fromDate,  toDate);
-        process("SF80", fromDate,  toDate);
+//        process(null, fromDate,  toDate);
+//        process("SF1", fromDate,  toDate);
+//        process("SF7", fromDate,  toDate);
+//        process("SF30", fromDate,  toDate);
+//        process("SF80", fromDate,  toDate);
+        process("THAGA15", fromDate,  toDate);
     }
 
     private void sleepTime() {
@@ -76,13 +78,27 @@ public class ScanSpotify extends Thread {
 
                 String[] listPackage = null;
 
-                // Tổng DK tất cả các gói
-                listPackage = new String[]{
-                        "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
-                        "DK SF1", "DK SF7", "DK SF30", "DK SF80",
-                        "DKFREE SF1", "DKFREE SF7", "DKFREE SF30", "DKFREE SF80",
-                        "DK SF1 NOT EM", "DK SF7 NOT EM", "DK SF30 NOT EM", "DK SF80 NOT EM"
-                };
+                boolean conditionPackage = packageFilter == null ||
+                        packageFilter.equals("SF1") ||
+                        packageFilter.equals("SF7") ||
+                        packageFilter.equals("SF30") ||
+                        packageFilter.equals("SF80");
+
+                // Tổng lượt đăng ký tất cả các gói
+                if (conditionPackage) {
+                    listPackage = new String[]{
+                            "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
+                            "DK SF1", "DK SF7", "DK SF30", "DK SF80",
+                            "DK SF1 NOT EM", "DK SF7 NOT EM", "DK SF30 NOT EM", "DK SF80 NOT EM"
+                    };
+                } else if (packageFilter.equals("THAGA15")) {
+                    listPackage = new String[]{
+                            "DKLAI THAGA15",
+                            "DK THAGA15",
+                            "DKFREE THAGA15",
+                            "DK THAGA15 NOT EM",
+                    };
+                }
                 int numberNewAll = countRegister(currentdate, listPackage, packageFilter);
 
                 // Tổng lượt đăng ký mới gói SF1
@@ -109,6 +125,12 @@ public class ScanSpotify extends Thread {
                 };
                 int numberNewSF80 = countRegister(currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký mới gói THAGA15
+                listPackage = new String[]{
+                        "DK THAGA15"
+                };
+                int numberNewTHAGA15 = countRegister(currentdate, listPackage, packageFilter);
+
                 // Tổng lượt đăng ký lại gói SF1
                 listPackage = new String[]{
                         "DKLAI SF1"
@@ -133,47 +155,53 @@ public class ScanSpotify extends Thread {
                 };
                 int numberAgainSF80 = countRegister(currentdate, listPackage, packageFilter);
 
+                // Tổng lượt đăng ký lại gói THAGA15
                 listPackage = new String[]{
-                        "DKFREE SF1", "DKFREE SF7", "DKFREE SF30", "DKFREE SF80",
+                        "DKLAI THAGA15"
+                };
+                int numberAgainTHAGA15 = countRegister(currentdate, listPackage, packageFilter);
+
+                listPackage = new String[]{
+                        "DKFREE SF1", "DKFREE SF7", "DKFREE SF30", "DKFREE SF80", "DKFREE THAGA15",
                 };
                 int numberNewFree = countRegister(currentdate, listPackage, packageFilter);
 
                 // Tổng đăng ký miễn phí
                 listPackage = new String[]{
-                        "DK SF1 NOT EM", "DK SF7 NOT EM", "DK SF30 NOT EM", "DK SF80 NOT EM"
+                        "DK SF1 NOT EM", "DK SF7 NOT EM", "DK SF30 NOT EM", "DK SF80 NOT EM", "DK THAGA15 NOT EM",
                 };
                 int numberNewFail = countRegister(currentdate, listPackage, packageFilter);
 
                 // Tổng gia hạn
                 listPackage = new String[]{
-                        "GH SF1", "GH SF7", "GH SF30", "GH SF80"
+                        "GH SF1", "GH SF7", "GH SF30", "GH SF80", "GH THAGA15"
                 };
                 int numberMore = countRegister(currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy
                 listPackage = new String[]{
-                        "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80",
-                        "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80"
+                        "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80", "HTHUY THAGA15",
+                        "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80", "HUY THAGA15"
                 };
                 int numberCancel = countRegister(currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do người dùng hủy
                 listPackage = new String[]{
-                        "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80"
+                        "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80", "HUY THAGA15"
                 };
                 int numberCancelUser = countRegister(currentdate, listPackage, packageFilter);
 
                 // Tổng tb hủy do hệ thống hủy
                 listPackage = new String[]{
-                        "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80",
+                        "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80", "HTHUY THAGA15",
                 };
                 int numberCancelSystem = countRegister(currentdate, listPackage, packageFilter);
 
                 // Tổng tb phát sinh cước
                 listPackage = new String[]{
-                        "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
-                        "DK SF1", "DK SF7", "DK SF30", "DK SF80",
-                        "GH SF1", "GH SF7", "GH SF30", "GH SF80"
+                        "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80", "DKLAI THAGA15",
+                        "DK SF1", "DK SF7", "DK SF30", "DK SF80", "DK THAGA15",
+                        "GH SF1", "GH SF7", "GH SF30", "GH SF80", "GH THAGA15"
                 };
                 int numberPSC = countRegister(currentdate, listPackage, packageFilter);
 
@@ -189,13 +217,13 @@ public class ScanSpotify extends Thread {
                 if (!checkExist) {
                     // Save to DB
                     String sql = "insert into REPORT_SPOTIFY " +
-                            "(PACKAGE_CODE, CREATE_AT, SUCCESS_SF1, SUCCESS_SF7, SUCCESS_SF30, SUCCESS_SF80," +
-                            "AGAIN_SF1, AGAIN_SF7, AGAIN_SF30, AGAIN_SF80," +
+                            "(PACKAGE_CODE, CREATE_AT, SUCCESS_SF1, SUCCESS_SF7, SUCCESS_SF30, SUCCESS_SF80, SUCCESS_THAGA15, " +
+                            "AGAIN_SF1, AGAIN_SF7, AGAIN_SF30, AGAIN_SF80, AGAIN_THAGA15, " +
                             "NEW_FREE, NEW_FAILE, MORE, CANCEL_ALL, CANCEL_USER, " +
                             "CANCEL_SYSTEM, PSC, REVENUE, INDAY, LOG_ALL) " +
                             "VALUES (${PACKAGE}, TO_DATE('${CREATE_AT}', 'yyyy/mm/dd'), ${SUCCESS_SF1}, ${SUCCESS_SF7}, " +
-                            "${SUCCESS_SF30}, ${SUCCESS_SF80}, " +
-                            "${AGAIN_SF1}, ${AGAIN_SF7}, ${AGAIN_SF30}, ${AGAIN_SF80}, " +
+                            "${SUCCESS_SF30}, ${SUCCESS_SF80}, ${SUCCESS_THAGA15}," +
+                            "${AGAIN_SF1}, ${AGAIN_SF7}, ${AGAIN_SF30}, ${AGAIN_SF80}, ${AGAIN_THAGA15}, " +
                             "${NEW_FREE}, ${NEW_FAILE}, ${MORE}, ${CANCEL_ALL}," +
                             "${CANCEL_USER}, ${CANCEL_SYSTEM}, ${PSC}, ${REVENUE}, ${INDAY}, ${LOG_ALL})";
                     Map<String, Object> valuesMap = new HashMap<String, Object>();
@@ -216,10 +244,12 @@ public class ScanSpotify extends Thread {
                     valuesMap.put("SUCCESS_SF7", numberNewSF7);
                     valuesMap.put("SUCCESS_SF30", numberNewSF30);
                     valuesMap.put("SUCCESS_SF80", numberNewSF80);
+                    valuesMap.put("SUCCESS_THAGA15", numberNewTHAGA15);
                     valuesMap.put("AGAIN_SF1", numberAgainSF1);
                     valuesMap.put("AGAIN_SF7", numberAgainSF7);
                     valuesMap.put("AGAIN_SF30", numberAgainSF30);
                     valuesMap.put("AGAIN_SF80", numberAgainSF80);
+                    valuesMap.put("AGAIN_THAGA15", numberAgainTHAGA15);
                     valuesMap.put("NEW_FREE", numberNewFree);
                     valuesMap.put("NEW_FAILE", numberNewFail);
                     valuesMap.put("MORE", numberMore);
@@ -244,10 +274,12 @@ public class ScanSpotify extends Thread {
                             "SUCCESS_SF7 = ${SUCCESS_SF7}," +
                             "SUCCESS_SF30 = ${SUCCESS_SF30}," +
                             "SUCCESS_SF80 = ${SUCCESS_SF80}," +
+                            "SUCCESS_THAGA15 = ${SUCCESS_THAGA15}," +
                             "AGAIN_SF1 = ${AGAIN_SF1}," +
                             "AGAIN_SF7 = ${AGAIN_SF7}," +
                             "AGAIN_SF30 = ${AGAIN_SF30}," +
                             "AGAIN_SF80 = ${AGAIN_SF80}," +
+                            "AGAIN_THAGA15 = ${AGAIN_THAGA15}," +
                             "NEW_FREE = ${NEW_FREE}," +
                             "NEW_FAILE = ${NEW_FAILE}," +
                             "MORE = ${MORE}," +
@@ -278,10 +310,12 @@ public class ScanSpotify extends Thread {
                     valuesMap.put("SUCCESS_SF7", numberNewSF7);
                     valuesMap.put("SUCCESS_SF30", numberNewSF30);
                     valuesMap.put("SUCCESS_SF80", numberNewSF80);
+                    valuesMap.put("SUCCESS_THAGA15", numberNewTHAGA15);
                     valuesMap.put("AGAIN_SF1", numberAgainSF1);
                     valuesMap.put("AGAIN_SF7", numberAgainSF7);
                     valuesMap.put("AGAIN_SF30", numberAgainSF30);
                     valuesMap.put("AGAIN_SF80", numberAgainSF80);
+                    valuesMap.put("AGAIN_THAGA15", numberAgainTHAGA15);
                     valuesMap.put("NEW_FREE", numberNewFree);
                     valuesMap.put("NEW_FAILE", numberNewFail);
                     valuesMap.put("MORE", numberMore);
@@ -428,11 +462,25 @@ public class ScanSpotify extends Thread {
         try {
             // List Package
             String[] listPackage = new String[]{};
-            listPackage = new String[]{
-                    "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
-                    "DK SF1", "DK SF7", "DK SF30", "DK SF80",
-                    "GH SF1", "GH SF7", "GH SF30", "GH SF80"
-            };
+            if ( packageFilter == null ||
+                    packageFilter.equals("SF1") ||
+                    packageFilter.equals("SF7") ||
+                    packageFilter.equals("SF30")
+            ) {
+                listPackage = new String[]{
+                        "DKLAI SF1", "DKLAI SF7", "DKLAI SF30", "DKLAI SF80",
+                        "DK SF1", "DK SF7", "DK SF30", "DK SF80",
+                        "GH SF1", "GH SF7", "GH SF30", "GH SF80"
+                };
+            } else if (packageFilter.equals("THAGA15")) {
+                listPackage = new String[]{
+                        "DKLAI THAGA15",
+                        "DK THAGA15",
+                        "GH THAGA15",
+                        "GHMK THAGA15",
+                        "GHCD THAGA15"
+                };
+            }
 
             // SQL
             String sql = "select sum(CHARGE_PRICE) as count_data from LOG_REQUEST partition (log_request_p${partition}) " +
@@ -500,8 +548,8 @@ public class ScanSpotify extends Thread {
 
         try {
             String[] listPackage = new String[]{
-                    "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80",
-                    "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80"
+                    "HTHUY SF1", "HTHUY SF7", "HTHUY SF30", "HTHUY SF80", "HTHUY THAGA15",
+                    "HUY SF1", "HUY SF7", "HUY SF30", "HUY SF80", "HUY THAGA15"
             };
 
             // SQL
